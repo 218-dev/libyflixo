@@ -1,0 +1,6 @@
+{
+  "name": "Libyflix",
+  "description": "A premium Netflix-style streaming movie portal featuring dynamic category filtering, rapid smart search, high-fidelity responsive video player, and real-time content synchronized from the GoLive API.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
