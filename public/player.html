@@ -103,15 +103,6 @@
         ⏳ جاري تجهيز الفيديو ... انتظر قليلاً.
     </div>
 
-    <div class="btn-group">
-        <a id="downloadBtn" href="#" download class="btn btn-primary">📥 تحميل الفيلم</a>
-        <a id="vlcBtn" href="#" class="btn">📱 فتح بـ VLC (أندرويد)</a>
-        <a id="newWindowBtn" href="#" class="btn">🌐 فتح في نافذة جديدة</a>
-    </div>
-
-    <div class="footer-note">
-        🔗 رابط الفيديو يحتوي على رمز توثيق · قد لا يعمل المشغل الداخلي مع جميع المتصفحات.
-    </div>
 </div>
 
 <script>
@@ -131,11 +122,6 @@
         // Set video source
         video.src = streamUrl;
         video.load();
-
-        // Set buttons
-        document.getElementById('downloadBtn').href = rawUrl;
-        document.getElementById('vlcBtn').href = 'intent://' + rawUrl.replace(/^https?:\/\//, '') + '#Intent;action=android.intent.action.VIEW;scheme=http;package=org.videolan.vlc;end';
-        document.getElementById('newWindowBtn').onclick = function() { window.open(rawUrl); return false; };
 
         // Functions
         function setMessage(text, isError = false) {
