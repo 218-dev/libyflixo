@@ -760,11 +760,35 @@ export default function App() {
                 {/* Main Details Panel */}
                 <div className="md:col-span-8 flex flex-col gap-5">
                   <div className="flex gap-6 items-start">
-                    <img 
-                      src={selectedMovie.posterUrl || selectedMovie.backdropUrl} 
-                      alt={selectedMovie.title}
-                      className="w-24 h-36 md:w-32 md:h-48 object-cover rounded-xl shadow-2xl border border-zinc-700"
-                    />
+                    <div className="w-24 h-36 md:w-32 md:h-48 relative shadow-2xl border border-zinc-700 rounded-xl overflow-hidden bg-zinc-900 flex items-center justify-center">
+                      <img 
+                        src={selectedMovie.posterUrl || selectedMovie.backdropUrl} 
+                        alt={selectedMovie.title}
+                        className="w-full h-full object-cover"
+                        data-tried-poster={selectedMovie.posterUrl === (selectedMovie.posterUrl || selectedMovie.backdropUrl) ? 'true' : 'false'}
+                        data-tried-backdrop={selectedMovie.backdropUrl === (selectedMovie.posterUrl || selectedMovie.backdropUrl) ? 'true' : 'false'}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          
+                          // Try alternatives
+                          if (target.dataset.triedPoster === 'false' && selectedMovie.posterUrl) {
+                            target.src = selectedMovie.posterUrl;
+                            target.dataset.triedPoster = 'true';
+                          } else if (target.dataset.triedBackdrop === 'false' && selectedMovie.backdropUrl) {
+                            target.src = selectedMovie.backdropUrl;
+                            target.dataset.triedBackdrop = 'true';
+                          } else {
+                            // Final failure: show LibyFlix text
+                            const parent = target.parentElement!;
+                            parent.innerHTML = `
+                              <div class="w-full h-full flex items-center justify-center bg-zinc-900 text-[10px] md:text-xs font-black text-red-600 p-2 text-center">
+                                ${isAr ? 'ليبيـفليكس' : 'LIBYFLIX'}
+                              </div>
+                            `;
+                          }
+                        }}
+                      />
+                    </div>
                     <div className="flex-1">
                       {/* Tags / Badges */}
                       <div className="flex flex-wrap items-center gap-2 mb-3">

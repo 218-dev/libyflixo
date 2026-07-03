@@ -48,8 +48,14 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={(e) => {
-            // If image fails, replace with a placeholder
-            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=600&auto=format&fit=crop";
+            const target = e.target as HTMLImageElement;
+            const parent = target.parentElement!;
+            // Replace image with LibyFlix fallback
+            parent.innerHTML = `
+              <div class="w-full h-full flex items-center justify-center bg-zinc-900 text-xs font-black text-red-600 p-2 text-center">
+                ${isAr ? 'ليبيـفليكس' : 'LIBYFLIX'}
+              </div>
+            `;
           }}
         />
 
