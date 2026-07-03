@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { 
   Search, Film, Flame, Globe, LayoutGrid, AlertCircle, RefreshCw, 
   ChevronLeft, ChevronRight, Play, Info, Trophy, Tv, Calendar, Clock, Activity, Zap,
-  Bell, Sparkles, X, ExternalLink, Eye, Star
+  Bell, Sparkles, X, ExternalLink, Eye, Star, Download
 } from "lucide-react";
 import { Movie, Language } from "./types";
 import MovieCard from "./components/MovieCard";
@@ -753,65 +753,51 @@ export default function App() {
                 <X className="h-5 w-5" />
               </button>
 
-              {/* Video Player Display Container */}
-              <div className="relative w-full aspect-video bg-black flex flex-col items-center justify-center border-b border-zinc-850">
-                {selectedMovie.sources && selectedMovie.sources.length > 0 ? (
-                  <video
-                    key={`${selectedMovie.id}-${activeSourceIndex}`}
-                    src={`/api/stream?url=${encodeURIComponent(selectedMovie.sources[activeSourceIndex]?.streamUrl || "")}`}
-                    controls
-                    autoPlay
-                    className="w-full h-full object-contain"
-                    poster={selectedMovie.backdropUrl || selectedMovie.posterUrl || ""}
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-3 p-8 text-center text-zinc-500">
-                    <Film className="h-16 w-16 text-zinc-700 animate-pulse" />
-                    <p className="text-sm font-bold text-zinc-400">
-                      {isAr ? "لا يوجد مصدر تشغيل متاح للفيلم" : "No streaming source available for this movie"}
-                    </p>
-                  </div>
-                )}
-              </div>
 
               {/* Movie Details Content Grid */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-8 p-6 md:p-8 bg-gradient-to-b from-zinc-900 to-zinc-950">
                 
                 {/* Main Details Panel */}
                 <div className="md:col-span-8 flex flex-col gap-5">
-                  <div>
-                    {/* Tags / Badges */}
-                    <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
-                        {isAr ? "يُعرض الآن" : "Now Playing"}
-                      </span>
-                      {selectedMovie.rating && (
-                        <span className="bg-zinc-800 text-red-500 border border-zinc-750 text-xs font-extrabold px-2 py-0.5 rounded flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-current text-red-500" />
-                          {selectedMovie.rating.toFixed(1)}
+                  <div className="flex gap-6 items-start">
+                    <img 
+                      src={selectedMovie.posterUrl || selectedMovie.backdropUrl} 
+                      alt={selectedMovie.title}
+                      className="w-32 h-48 object-cover rounded-xl shadow-2xl border border-zinc-700 hidden md:block"
+                    />
+                    <div className="flex-1">
+                      {/* Tags / Badges */}
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
+                          {isAr ? "يُعرض الآن" : "Now Playing"}
                         </span>
-                      )}
-                      {selectedMovie.year && (
-                        <span className="bg-zinc-800 text-zinc-300 border border-zinc-750 text-xs font-bold px-2 py-0.5 rounded">
-                          {selectedMovie.year}
-                        </span>
-                      )}
-                      {selectedMovie.duration && (
-                        <span className="bg-zinc-800 text-zinc-300 border border-zinc-750 text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5 text-zinc-450" />
-                          {isAr ? `${selectedMovie.duration} دقيقة` : `${selectedMovie.duration} min`}
-                        </span>
+                        {selectedMovie.rating && (
+                          <span className="bg-zinc-800 text-red-500 border border-zinc-700 text-xs font-extrabold px-2 py-0.5 rounded flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-current text-red-500" />
+                            {selectedMovie.rating.toFixed(1)}
+                          </span>
+                        )}
+                        {selectedMovie.year && (
+                          <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 text-xs font-bold px-2 py-0.5 rounded">
+                            {selectedMovie.year}
+                          </span>
+                        )}
+                        {selectedMovie.duration && (
+                          <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5 text-zinc-400" />
+                            {isAr ? `${selectedMovie.duration} دقيقة` : `${selectedMovie.duration} min`}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Movie Title */}
+                      <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
+                        {isAr ? (selectedMovie.titleAr || selectedMovie.title) : (selectedMovie.titleEn || selectedMovie.title)}
+                      </h2>
+                      {isAr && selectedMovie.titleEn && (
+                        <p className="text-sm font-bold text-zinc-400 mt-1 font-mono tracking-wide">{selectedMovie.titleEn}</p>
                       )}
                     </div>
-
-                    {/* Movie Title */}
-                    <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
-                      {isAr ? (selectedMovie.titleAr || selectedMovie.title) : (selectedMovie.titleEn || selectedMovie.title)}
-                    </h2>
-                    {isAr && selectedMovie.titleEn && (
-                      <p className="text-sm font-bold text-zinc-400 mt-1 font-mono tracking-wide ltr:text-left">{selectedMovie.titleEn}</p>
-                    )}
                   </div>
 
                   {/* Story Description */}
@@ -856,23 +842,26 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Fallback Direct Play button */}
+                  {/* Watch Movie button */}
                   {selectedMovie.sources && selectedMovie.sources.length > 0 && (
                     <div className="pt-4 border-t border-zinc-800/60 flex flex-col sm:flex-row sm:items-center gap-3">
                       <p className="text-xs font-bold text-zinc-400 leading-relaxed flex-1">
                         {isAr 
-                          ? "إذا لم يشتغل البث داخل الصفحة بسبب قيود متصفحك، يمكنك تشغيل الرابط المباشر في مشغل خارجي:" 
-                          : "If browser restriction prevents stream loading, open direct stream link:"}
+                          ? "يمكنك مشاهدة الفيلم مباشرة في مشغل خارجي:" 
+                          : "You can watch the movie directly in an external player:"}
                       </p>
-                      <a
-                        href={selectedMovie.sources[activeSourceIndex]?.streamUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-bold text-zinc-350 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                      <button
+                        onClick={() => {
+                          const url = selectedMovie.sources[activeSourceIndex]?.streamUrl;
+                          if (url) {
+                            window.open(`/player.html?url=${encodeURIComponent(url)}`, "_blank", "width=800,height=600");
+                          }
+                        }}
+                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 border border-red-500 text-xs font-bold text-white transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
                       >
-                        <ExternalLink className="h-3.5 w-3.5 text-red-500" />
-                        <span>{isAr ? "تشغيل خارجي مباشر" : "Direct External Play"}</span>
-                      </a>
+                        <Play className="h-3.5 w-3.5 text-white" />
+                        <span>{isAr ? "مشاهدة الفيلم" : "Watch Movie"}</span>
+                      </button>
                     </div>
                   )}
                 </div>

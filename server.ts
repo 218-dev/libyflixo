@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { Readable } from "stream";
+import axios from "axios";
 import { createServer as createViteServer } from "vite";
 
 const app = express();
@@ -56,38 +56,44 @@ app.get("/api/stream", async (req, res) => {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     };
 
+    try {
+      const urlObj = new URL(streamUrl);
+      headers["Referer"] = urlObj.origin + "/";
+      headers["Origin"] = urlObj.origin;
+    } catch (e) {
+      // ignore
+    }
+
     if (req.headers.range) {
       headers["Range"] = req.headers.range;
     }
 
-    const response = await fetch(streamUrl, { headers });
+    const response = await axios({
+      method: "GET",
+      url: streamUrl,
+      responseType: "stream",
+      headers,
+      validateStatus: () => true,
+    });
 
     res.status(response.status);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Range, Content-Type");
 
-    const headersToForward = [
+    [
       "content-type",
       "content-length",
       "content-range",
       "accept-ranges",
       "cache-control",
-    ];
-
-    for (const h of headersToForward) {
-      const val = response.headers.get(h);
-      if (val) {
-        res.setHeader(h, val);
+    ].forEach((h) => {
+      if (response.headers[h]) {
+        res.setHeader(h, response.headers[h]);
       }
-    }
+    });
 
-    if (response.body) {
-      const nodeStream = Readable.fromWeb(response.body as any);
-      nodeStream.pipe(res);
-      res.on("close", () => {
-        nodeStream.destroy();
-      });
-    } else {
-      res.end();
-    }
+    response.data.pipe(res);
   } catch (error) {
     console.error("Stream proxy error:", error);
     if (!res.headersSent) {
