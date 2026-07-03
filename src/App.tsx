@@ -763,7 +763,7 @@ export default function App() {
                     <img 
                       src={selectedMovie.posterUrl || selectedMovie.backdropUrl} 
                       alt={selectedMovie.title}
-                      className="w-32 h-48 object-cover rounded-xl shadow-2xl border border-zinc-700 hidden md:block"
+                      className="w-24 h-36 md:w-32 md:h-48 object-cover rounded-xl shadow-2xl border border-zinc-700"
                     />
                     <div className="flex-1">
                       {/* Tags / Badges */}
@@ -854,12 +854,12 @@ export default function App() {
                         onClick={() => {
                           const url = selectedMovie.sources[activeSourceIndex]?.streamUrl;
                           if (url) {
-                            window.open(`/player.html?url=${encodeURIComponent(url)}`, "_blank", "width=800,height=600");
+                            window.open(url, "_blank");
                           }
                         }}
-                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 border border-red-500 text-xs font-bold text-white transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                        className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 border border-red-500 text-sm font-bold text-white transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
                       >
-                        <Play className="h-3.5 w-3.5 text-white" />
+                        <Play className="h-4 w-4 text-white" />
                         <span>{isAr ? "مشاهدة الفيلم" : "Watch Movie"}</span>
                       </button>
                     </div>
