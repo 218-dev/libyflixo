@@ -1,27 +1,52 @@
 <div align="center">
 
-# 🎬 LibyFlix
+<img src="./public/logo.png" alt="LibyFlix Logo" width="170">
 
-منصة حديثة لمشاهدة الأفلام والمسلسلات بواجهة سريعة وسهلة الاستخدام.
+# LibyFlix
 
-🌐 الموقع:
-https://libyflix.abdo.com.ly/
+Modern Streaming Platform
+
+<p>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+  <img src="https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge">
+</p>
+
+<p>
+  <a href="https://libyflix.abdo.com.ly">
+    <img src="https://img.shields.io/badge/Website-Live-red?style=for-the-badge&logo=google-chrome&logoColor=white">
+  </a>
+  <a href="../../issues">
+    <img src="https://img.shields.io/badge/Issues-GitHub-black?style=for-the-badge&logo=github">
+  </a>
+  <a href="../../pulls">
+    <img src="https://img.shields.io/badge/Pull_Requests-Welcome-blue?style=for-the-badge&logo=github">
+  </a>
+</p>
 
 </div>
 
 ---
 
-## ✨ المميزات
+## About
 
-- 🎥 مشاهدة الأفلام والمسلسلات.
-- ⚡ واجهة سريعة مبنية بـ React + TypeScript.
-- 📱 تصميم متجاوب مع جميع الأجهزة.
-- 🔍 بحث سريع عن المحتوى.
-- ❤️ إضافة المحتوى إلى المفضلة.
+LibyFlix is a modern streaming platform built using React, TypeScript and Vite, providing a fast and responsive experience for browsing movies and TV shows.
 
 ---
 
-## 🛠️ التقنيات المستخدمة
+## Features
+
+- Responsive UI
+- Fast Performance
+- Movies & TV Shows
+- Search
+- Favorites
+- Modern Design
+
+---
+
+## Tech Stack
 
 - React
 - TypeScript
@@ -30,25 +55,33 @@ https://libyflix.abdo.com.ly/
 
 ---
 
-## 🚀 تشغيل المشروع محليًا
-
-### المتطلبات
-
-- Node.js 18 أو أحدث
-
-### تثبيت الحزم
+## Installation
 
 ```bash
 npm install
 ```
 
-### تشغيل المشروع
+## Development
 
 ```bash
 npm run dev
 ```
 
-### بناء نسخة الإنتاج
+## Production
 
 ```bash
 npm run build
+npm run preview
+```
+
+---
+
+## Website
+
+https://libyflix.abdo.com.ly
+
+---
+
+## License
+
+MIT License
