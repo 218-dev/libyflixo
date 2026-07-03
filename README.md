@@ -1,20 +1,54 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+
+# 🎬 LibyFlix
+
+منصة حديثة لمشاهدة الأفلام والمسلسلات بواجهة سريعة وسهلة الاستخدام.
+
+🌐 الموقع:
+https://libyflix.abdo.com.ly/
+
 </div>
 
-# Run and deploy your AI Studio app
+---
 
-This contains everything you need to run your app locally.
+## ✨ المميزات
 
-View your app in AI Studio: https://ai.studio/apps/c39120ea-3bea-4755-9fc3-1af8adc01f41
+- 🎥 مشاهدة الأفلام والمسلسلات.
+- ⚡ واجهة سريعة مبنية بـ React + TypeScript.
+- 📱 تصميم متجاوب مع جميع الأجهزة.
+- 🔍 بحث سريع عن المحتوى.
+- ❤️ إضافة المحتوى إلى المفضلة.
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 🛠️ التقنيات المستخدمة
 
+- React
+- TypeScript
+- Vite
+- CSS
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+
+## 🚀 تشغيل المشروع محليًا
+
+### المتطلبات
+
+- Node.js 18 أو أحدث
+
+### تثبيت الحزم
+
+```bash
+npm install
+```
+
+### تشغيل المشروع
+
+```bash
+npm run dev
+```
+
+### بناء نسخة الإنتاج
+
+```bash
+npm run build
