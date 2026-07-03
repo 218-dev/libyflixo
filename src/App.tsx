@@ -165,6 +165,7 @@ export default function App() {
   // Navigation & Search State
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("most-viewed");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
@@ -518,22 +519,57 @@ export default function App() {
             <LayoutGrid className="h-4 w-4 text-red-500" />
             {t.exploreByCat}
           </h3>
-          <div className="flex overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 gap-2 scrollbar-none">
-            {CATEGORIES.map((cat) => (
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.slice(0, 4).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => selectCategory(cat.id)}
-                className={`px-4.5 py-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 ${
                   activeCategory === cat.id && !searchQuery
-                    ? "bg-red-600 text-white font-extrabold shadow-lg shadow-red-600/20"
-                    : "bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 text-zinc-400 hover:text-zinc-200"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                    : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
                 }`}
               >
                 <span>{isAr ? cat.nameAr : cat.nameEn}</span>
               </button>
             ))}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white"
+            >
+              {isAr ? "المزيد" : "More"}
+            </button>
           </div>
         </section>
+
+        {isSidebarOpen && (
+          <div className="fixed inset-0 bg-black/90 z-50 p-4 flex items-center justify-center">
+            <div className="bg-zinc-950 p-6 rounded-2xl border border-zinc-800 max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-white">{isAr ? "جميع الأقسام" : "All Categories"}</h3>
+                <button onClick={() => setIsSidebarOpen(false)} className="text-zinc-400 hover:text-white">✕</button>
+              </div>
+              <div className="flex flex-col gap-2">
+                {CATEGORIES.slice(4).map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      selectCategory(cat.id);
+                      setIsSidebarOpen(false);
+                    }}
+                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer text-left ${
+                      activeCategory === cat.id && !searchQuery
+                        ? "bg-red-600 text-white"
+                        : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300"
+                    }`}
+                  >
+                    {isAr ? cat.nameAr : cat.nameEn}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Section Heading */}
         <div className="flex flex-col gap-4 border-b border-zinc-900 pb-5">
