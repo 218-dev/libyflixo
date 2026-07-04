@@ -3,127 +3,178 @@ import path from "path";
 import axios from "axios";
 import { createServer as createViteServer } from "vite";
 
-const app = express();
-const PORT = 3000;
+async function startServer() {
+  const app = express();
+  const PORT = 3000;
+  const GOLIVE_API = "https://admin.golive-pro.online/api";
 
-app.use(express.json());
+  app.use(express.json());
 
-// API routes
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+  // API routes
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
 
-app.get("/api/movies/most-viewed", async (req, res) => {
-  try {
-    const query = new URLSearchParams(req.query as Record<string, string>).toString();
-    const url = `https://admin.golive-pro.online/api/content/movies/most-viewed?${query}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      return res.status(response.status).send("Failed to fetch most-viewed movies");
+  app.get("/api/movies/most-viewed", async (req, res) => {
+    try {
+      const response = await axios.get(`${GOLIVE_API}/content/movies/most-viewed`, {
+        params: req.query,
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error("API proxy error for most-viewed movies:", error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: "Failed to fetch from upstream",
+        details: error.message 
+      });
     }
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error("API proxy error for most-viewed:", error);
-    res.status(500).json({ error: "Failed to fetch from upstream" });
-  }
-});
+  });
 
-app.get("/api/movies", async (req, res) => {
-  try {
-    const query = new URLSearchParams(req.query as Record<string, string>).toString();
-    const url = `https://admin.golive-pro.online/api/content/movies?${query}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      return res.status(response.status).send("Failed to fetch movies");
+  app.get("/api/series/most-viewed", async (req, res) => {
+    try {
+      const response = await axios.get(`${GOLIVE_API}/content/series/most-viewed`, {
+        params: req.query,
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error("API proxy error for most-viewed series:", error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: "Failed to fetch from upstream",
+        details: error.message 
+      });
     }
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error("API proxy error for movies list:", error);
-    res.status(500).json({ error: "Failed to fetch from upstream" });
-  }
-});
+  });
 
-app.get("/api/stream", async (req, res) => {
-  const streamUrl = req.query.url as string;
-  if (!streamUrl) {
-    return res.status(400).send("Missing stream URL");
-  }
+  app.get("/api/movies", async (req, res) => {
+    try {
+      const response = await axios.get(`${GOLIVE_API}/content/movies`, {
+        params: req.query,
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error("API proxy error for movies list:", error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: "Failed to fetch from upstream",
+        details: error.message 
+      });
+    }
+  });
 
-  try {
-    const headers: Record<string, string> = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    };
+  app.get("/api/series", async (req, res) => {
+    try {
+      const response = await axios.get(`${GOLIVE_API}/content/series`, {
+        params: req.query,
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error("API proxy error for series list:", error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: "Failed to fetch from upstream",
+        details: error.message 
+      });
+    }
+  });
+
+  app.get("/api/series/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const response = await axios.get(`${GOLIVE_API}/content/series/${id}`, {
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      console.error("API proxy error for series details:", error.message);
+      res.status(error.response?.status || 500).json({ 
+        error: "Failed to fetch from upstream",
+        details: error.message 
+      });
+    }
+  });
+
+  app.get("/api/stream", async (req, res) => {
+    const streamUrl = req.query.url as string;
+    if (!streamUrl) {
+      return res.status(400).send("Missing stream URL");
+    }
 
     try {
-      const urlObj = new URL(streamUrl);
-      headers["Referer"] = urlObj.origin + "/";
-      headers["Origin"] = urlObj.origin;
-    } catch (e) {
-      // ignore
-    }
+      const headers: Record<string, string> = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      };
 
-    if (req.headers.range) {
-      headers["Range"] = req.headers.range;
-    }
-
-    const response = await axios({
-      method: "GET",
-      url: streamUrl,
-      responseType: "stream",
-      headers,
-      validateStatus: () => true,
-    });
-
-    res.status(response.status);
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Range, Content-Type");
-
-    [
-      "content-type",
-      "content-length",
-      "content-range",
-      "accept-ranges",
-      "cache-control",
-    ].forEach((h) => {
-      if (response.headers[h]) {
-        res.setHeader(h, response.headers[h]);
+      try {
+        const urlObj = new URL(streamUrl);
+        headers["Referer"] = urlObj.origin + "/";
+        headers["Origin"] = urlObj.origin;
+      } catch (e) {
+        // ignore
       }
-    });
 
-    response.data.pipe(res);
-  } catch (error) {
-    console.error("Stream proxy error:", error);
-    if (!res.headersSent) {
-      res.status(500).send("Error streaming content");
+      if (req.headers.range) {
+        headers["Range"] = req.headers.range;
+      }
+
+      const response = await axios({
+        method: "GET",
+        url: streamUrl,
+        responseType: "stream",
+        headers,
+        validateStatus: () => true,
+        timeout: 15000
+      });
+
+      res.status(response.status);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Range, Content-Type");
+
+      [
+        "content-type",
+        "content-length",
+        "content-range",
+        "accept-ranges",
+        "cache-control",
+      ].forEach((h) => {
+        if (response.headers[h]) {
+          res.setHeader(h, response.headers[h]);
+        }
+      });
+
+      response.data.pipe(res);
+    } catch (error: any) {
+      console.error("Stream proxy error:", error.message);
+      if (!res.headersSent) {
+        res.status(500).send("Error streaming content");
+      }
     }
+  });
+
+  // Production static assets or Vite development middleware
+  if (process.env.NODE_ENV === "production") {
+    const distPath = path.join(process.cwd(), "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  } else {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
   }
+
+  // Start server
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer().catch(err => {
+  console.error("Failed to start server:", err);
 });
 
-// Production static assets
-if (process.env.NODE_ENV === "production") {
-  const distPath = path.join(process.cwd(), "dist");
-  app.use(express.static(distPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-} else {
-  // Vite middleware for development
-  createViteServer({
-    server: { middlewareMode: true },
-    appType: "spa",
-  }).then(vite => {
-    app.use(vite.middlewares);
-  });
-}
-
-// Start server if not running as a Vercel function
-if (!process.env.VERCEL) {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
-
-export default app;
