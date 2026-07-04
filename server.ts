@@ -153,6 +153,45 @@ async function startServer() {
     }
   });
 
+  app.get("/api/license/activate", async (req, res) => {
+    try {
+      const { code, user_id, device_id, key } = req.query;
+      const response = await axios.get("https://abdo218.alwaysdata.net/license.php", {
+        params: { action: "activate", code, user_id, device_id, key },
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      res.status(500).json({ status: "error", message: "Server connection failed via proxy" });
+    }
+  });
+
+  app.get("/api/license/check", async (req, res) => {
+    try {
+      const { code, key } = req.query;
+      const response = await axios.get("https://abdo218.alwaysdata.net/license.php", {
+        params: { action: "check", code, key },
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      res.status(500).json({ status: "error", message: "License check failed via proxy" });
+    }
+  });
+
+  app.get("/api/content/series/most-viewed", async (req, res) => {
+    try {
+      const { limit } = req.query;
+      const response = await axios.get("https://admin.golive-pro.online/api/content/series/most-viewed", {
+        params: { limit: limit || 12 },
+        timeout: 10000
+      });
+      res.json(response.data);
+    } catch (error: any) {
+      res.status(500).json({ status: "error", message: "Failed to fetch series via proxy" });
+    }
+  });
+
   // Production static assets or Vite development middleware
   if (process.env.NODE_ENV === "production") {
     const distPath = path.join(process.cwd(), "dist");
