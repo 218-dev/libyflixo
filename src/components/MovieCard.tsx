@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Star, Eye, Calendar, Film } from "lucide-react";
+import { Star, Eye, Calendar, Tv } from "lucide-react";
 import { Movie, Language } from "../types";
 
 export interface MovieCardProps {
@@ -35,7 +35,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
         transition: { type: "spring", stiffness: 400, damping: 25 }
       }}
       whileTap={{ scale: 0.98 }}
-      id={`movie-card-${movie.id}`}
+      id={`series-card-${movie.id}`}
       onClick={onClick}
       className="group relative cursor-pointer overflow-hidden rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-md transition-colors duration-300 hover:border-red-500/40 hover:shadow-[0_20px_35px_-15px_rgba(239,68,68,0.3)] flex flex-col h-full"
     >
@@ -61,7 +61,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
 
         {/* Floating Category Tag */}
         <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-medium text-red-500 border border-zinc-850 backdrop-blur-sm">
-          <Film className="h-3 w-3 text-red-500" />
+          <Tv className="h-3 w-3 text-red-500" />
           <span>
             {isAr ? (movie.category?.nameAr || movie.category?.name) : (movie.category?.nameEn || movie.category?.name)}
           </span>
@@ -78,7 +78,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
         {/* Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
           <button className="w-full rounded-xl bg-red-600 py-2.5 text-center text-xs font-black text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-600/30 cursor-pointer">
-            {isAr ? "تشغيل في المتصفح" : "Play in Browser"}
+            {isAr ? "مشاهدة المسلسل" : "Watch Series"}
           </button>
         </div>
       </div>
@@ -109,12 +109,12 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
         {/* Genre / Subtext */}
         <div className="mt-auto pt-2 border-t border-zinc-800/40 flex items-center justify-between text-[11px] text-zinc-500">
           <span className="flex items-center gap-1 max-w-[70%] truncate">
-            <Film className="h-3 w-3 text-zinc-600 flex-shrink-0" />
+            <Tv className="h-3 w-3 text-zinc-600 flex-shrink-0" />
             <span className="truncate">{genre}</span>
           </span>
           {movie.duration && (
             <span className="text-zinc-400 bg-zinc-800/50 px-1.5 py-0.5 rounded text-[10px]">
-              {movie.duration} {isAr ? "دقيقة" : "min"}
+              {movie.duration} {isAr ? "حلقة" : "eps"}
             </span>
           )}
         </div>
