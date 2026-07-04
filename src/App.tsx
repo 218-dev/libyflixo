@@ -102,7 +102,19 @@ const translations = {
     upcomingBadge: "لم تبدأ",
     finishedBadge: "انتهت",
     channel: "القناة الناقلة",
-    noMatches: "لا توجد مباريات مجدولة لليوم."
+    noMatches: "لا توجد مباريات مجدولة لليوم.",
+    licenseTitle: "تفعيل الاشتراك",
+    licenseSubtitle: "يرجى إدخال كود التفعيل للوصول إلى كافة ميزات ليبيفليكس",
+    licensePlaceholder: "أدخل كود التفعيل هنا...",
+    activate: "تفعيل الآن",
+    activating: "جاري التفعيل...",
+    licenseStatus: "حالة الاشتراك",
+    active: "مفعل",
+    expired: "منتهي",
+    remainingDays: "يوم متبقي",
+    invalidCode: "كود التفعيل غير صحيح أو منتهي",
+    errorCode: "حدث خطأ أثناء التفعيل، يرجى المحاولة لاحقاً",
+    days: "أيام"
   }
 };
 
@@ -110,6 +122,161 @@ const STATIC_CATEGORIES = [
   { id: "most-viewed", nameAr: "الأكثر مشاهدة", nameEn: "Most Viewed" },
   { id: "recently-added", nameAr: "المضافة حديثاً", nameEn: "Recently Added" },
 ];
+
+function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: { isAr: boolean, t: any, onActivate: (code: string) => void, error: string | null, isActivating: boolean }) {
+  const [inputCode, setInputCode] = useState("");
+  const [series, setSeries] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchTopSeries = async () => {
+      try {
+        const res = await fetch("/api/content/series/most-viewed?limit=12");
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setSeries(data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch top series", e);
+      }
+    };
+    fetchTopSeries();
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-zinc-950 p-4 overflow-y-auto">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(220,38,38,0.15),transparent_70%)]" />
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-red-600/10 rounded-full blur-[120px]" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="w-full max-w-5xl flex flex-col lg:flex-row items-center gap-12 relative z-10 py-12">
+        {/* Recently Added Series Slider (Left/Top side) */}
+        <div className="w-full lg:w-1/2 space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-1 bg-red-600 rounded-full" />
+            <h3 className="text-xl font-black text-white uppercase tracking-tighter">
+              {isAr ? "مسلسلات مضافة حديثاً" : "Recently Added Series"}
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {series.length > 0 ? (
+              series.slice(0, 6).map((item) => (
+                <motion.div 
+                  key={item.id}
+                  whileHover={{ y: -5 }}
+                  className="relative aspect-[2/3] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 group shadow-lg"
+                >
+                  <img 
+                    src={item.posterUrl} 
+                    alt={item.titleAr || item.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60 grayscale-[0.5]" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <p className="text-[10px] font-black text-white line-clamp-1 uppercase tracking-tighter">
+                      {isAr ? (item.titleAr || item.title) : (item.titleEn || item.title)}
+                    </p>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="aspect-[2/3] rounded-xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Activation Card (Right/Bottom side) */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-full lg:w-1/2 max-w-md bg-zinc-900/60 backdrop-blur-3xl border border-white/5 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="flex flex-col items-center text-center gap-6 relative z-10">
+            <div className="flex items-center gap-1 text-5xl font-black tracking-tighter mb-2">
+              <span className="text-white">{isAr ? "ليبيـ" : "LIBY"}</span>
+              <span className="text-red-600">{isAr ? "فليكس" : "FLIX"}</span>
+            </div>
+
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-white tracking-tight">{t.licenseTitle}</h2>
+              <p className="text-zinc-400 text-sm leading-relaxed max-w-[280px] mx-auto">{t.licenseSubtitle}</p>
+            </div>
+
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (inputCode.trim()) onActivate(inputCode);
+              }}
+              className="w-full space-y-4"
+            >
+              <div className="relative group">
+                <div className="absolute inset-y-0 right-4 flex items-center text-zinc-500 group-focus-within:text-red-500 transition-colors">
+                  <Zap className="h-5 w-5" />
+                </div>
+                <input
+                  type="text"
+                  placeholder={t.licensePlaceholder}
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value)}
+                  className="w-full bg-black/40 border border-zinc-800 focus:border-red-600/50 rounded-2xl pr-12 pl-4 py-4 text-center text-lg font-mono tracking-widest text-white focus:outline-none focus:ring-4 focus:ring-red-600/5 transition-all"
+                />
+              </div>
+
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 justify-center text-red-500 text-[10px] font-black uppercase tracking-widest bg-red-500/10 py-3 rounded-xl border border-red-500/20"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{error}</span>
+                </motion.div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isActivating}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-zinc-800 disabled:cursor-not-allowed text-white font-black py-4 rounded-2xl shadow-xl shadow-red-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3 group"
+              >
+                {isActivating ? (
+                  <>
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                    <span>{t.activating}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5 group-hover:animate-pulse" />
+                    <span>{t.activate}</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-4 pt-6 border-t border-zinc-800/50 w-full flex flex-col items-center gap-3">
+              <span className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-black"><a href="https://wa.me/218942050098" target="_blank">
+  تواصل عبر واتساب
+</a></span>
+              <div className="flex items-center gap-6">
+                <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Globe className="h-5 w-5" /></a>
+                <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Activity className="h-5 w-5" /></a>
+                <div className="h-4 w-px bg-zinc-800" />
+                <span className="text-[10px] text-zinc-600 font-bold tracking-tighter">صُنع بـ
+❤️
+في البيضاء - ليبيا</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [language, setLanguage] = useState<Language>("ar");
@@ -130,6 +297,86 @@ export default function App() {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [activeSourceIndex, setActiveSourceIndex] = useState<number>(0);
   const [dynamicCategories, setDynamicCategories] = useState<{id: string, nameAr: string, nameEn: string, library: string}[]>([]);
+
+  // License State
+  const [licenseCode, setLicenseCode] = useState<string>(localStorage.getItem("libyflix_license_code") || "");
+  const [isLicenseActive, setIsLicenseActive] = useState<boolean>(false);
+  const [licenseInfo, setLicenseInfo] = useState<{ remainingDays: number, status: string } | null>(null);
+  const [isCheckingLicense, setIsCheckingLicense] = useState<boolean>(true);
+  const [isActivating, setIsActivating] = useState<boolean>(false);
+  const [licenseError, setLicenseError] = useState<string | null>(null);
+
+  // Generate or retrieve persistent Device ID
+  const getDeviceId = () => {
+    let deviceId = localStorage.getItem("libyflix_device_id");
+    if (!deviceId) {
+      deviceId = 'web_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem("libyflix_device_id", deviceId);
+    }
+    return deviceId;
+  };
+
+  const API_AUTH_KEY = "123456SECRETKEY";
+
+  // Check License Status
+  useEffect(() => {
+    const checkLicense = async () => {
+      if (!licenseCode) {
+        setIsCheckingLicense(false);
+        setIsLicenseActive(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/license/check?code=${licenseCode}&key=${API_AUTH_KEY}`);
+        const data = await res.json();
+        
+        if (data.status === "active") {
+          setIsLicenseActive(true);
+          const days = Math.floor(data.remaining_seconds / 86400);
+          setLicenseInfo({
+            remainingDays: days,
+            status: "active"
+          });
+        } else {
+          setIsLicenseActive(false);
+          if (data.status === "expired") {
+            setLicenseError(isAr ? "انتهت صلاحية الكود" : "Code expired");
+          }
+        }
+      } catch (e) {
+        console.error("License check failed", e);
+      } finally {
+        setIsCheckingLicense(false);
+      }
+    };
+
+    checkLicense();
+  }, [licenseCode]);
+
+  const handleActivate = async (code: string) => {
+    setLicenseError(null);
+    setIsActivating(true);
+    try {
+      const deviceId = getDeviceId();
+      const userId = deviceId.substring(0, 8); 
+      
+      const res = await fetch(`/api/license/activate?code=${code}&user_id=${userId}&device_id=${deviceId}&key=${API_AUTH_KEY}`);
+      const data = await res.json();
+
+      if (data.status === "success") {
+        localStorage.setItem("libyflix_license_code", code);
+        setLicenseCode(code);
+        setIsLicenseActive(true);
+      } else {
+        setLicenseError(data.message || (isAr ? "كود التفعيل غير صالح" : "Invalid activation code"));
+      }
+    } catch (e) {
+      setLicenseError(isAr ? "حدث خطأ في الاتصال بالسيرفر. يرجى المحاولة لاحقاً" : "Connection error. Please try again later.");
+    } finally {
+      setIsActivating(false);
+    }
+  };
 
   // Fetch categories based on content type
   useEffect(() => {
@@ -462,7 +709,26 @@ export default function App() {
       dir={isAr ? "rtl" : "ltr"} 
       className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-red-600 selection:text-white font-sans flex flex-col"
     >
-      {/* Dynamic Background Backdrop subtle glow */}
+      <AnimatePresence>
+        {!isLicenseActive && !isCheckingLicense && (
+          <LicenseActivationScreen 
+          isAr={isAr} 
+          t={t} 
+          onActivate={handleActivate}
+          error={licenseError}
+          isActivating={isActivating}
+        />
+        )}
+      </AnimatePresence>
+
+      {isCheckingLicense ? (
+        <div className="fixed inset-0 z-[60] bg-zinc-950 flex flex-col items-center justify-center gap-4">
+           <RefreshCw className="h-10 w-10 text-red-600 animate-spin" />
+           <span className="text-zinc-500 font-bold tracking-widest uppercase text-xs">Checking License...</span>
+        </div>
+      ) : isLicenseActive && (
+        <>
+          {/* Dynamic Background Backdrop subtle glow */}
       <div className="absolute top-0 left-1/4 right-1/4 h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Navbar Header */}
@@ -868,9 +1134,9 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center text-xs text-zinc-500 font-medium">
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <div className="flex items-center gap-1 text-xl font-black tracking-tighter">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 text-center text-xs text-zinc-500 font-medium pt-8 border-t border-zinc-900/50">
+            <div className="flex flex-col items-center md:items-start gap-3">
+              <div className="flex items-center gap-1 text-2xl font-black tracking-tighter">
                 {isAr ? (
                   <>
                     <span className="text-zinc-300">ليبيـ</span>
@@ -883,19 +1149,43 @@ export default function App() {
                   </>
                 )}
               </div>
-              <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">© 2026 {t.allRightsReserved}</span>
-            </div>
-            
-            <div className="flex items-center gap-1.5 justify-center bg-zinc-900/40 border border-zinc-850 px-5 py-2 rounded-2xl text-zinc-400 font-extrabold text-[11px] transition-all hover:border-red-600/30 hover:text-white">
-              <span>صُنع بـ</span>
-              <span className="text-red-600 animate-pulse scale-125 mx-1">❤️</span>
-              <span>في البيضاء - ليبيا</span>
+              <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em]">© 2026 {t.allRightsReserved}</span>
             </div>
 
-            <div className="flex items-center gap-6">
-              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-widest font-black text-[10px]">{isAr ? "سياسة الخصوصية" : "Privacy"}</a>
-              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-widest font-black text-[10px]">{isAr ? "الشروط" : "Terms"}</a>
-              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-widest font-black text-[10px]">{isAr ? "الدعم" : "Support"}</a>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {licenseInfo && (
+                <div className="flex items-center gap-3 bg-zinc-900/40 border border-zinc-800/80 px-5 py-2.5 rounded-2xl shadow-xl">
+                  <div className="flex flex-col items-start">
+                    <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">{t.licenseStatus}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs font-black text-white uppercase">{t.active}</span>
+                    </div>
+                  </div>
+                  <div className="h-8 w-px bg-zinc-800" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">{t.remainingDays}</span>
+                    <span className="text-sm font-black text-red-500">{licenseInfo.remainingDays} {t.days}</span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex items-center gap-2 bg-zinc-900/20 border border-zinc-800 px-4 py-2.5 rounded-2xl">
+                <Activity className="h-4 w-4 text-emerald-500" />
+                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">System Status: Secured</span>
+              </div>
+              
+              <div className="flex items-center gap-1.5 justify-center bg-zinc-900/40 border border-zinc-850 px-5 py-2 rounded-2xl text-zinc-400 font-extrabold text-[11px] transition-all hover:border-red-600/30 hover:text-white">
+                <span>صُنع بـ</span>
+                <span className="text-red-600 animate-pulse scale-125 mx-1">❤️</span>
+                <span>في البيضاء - ليبيا</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-8">
+              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-[0.2em] font-black text-[10px]">{isAr ? "سياسة الخصوصية" : "Privacy"}</a>
+              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-[0.2em] font-black text-[10px]">{isAr ? "الشروط" : "Terms"}</a>
+              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-[0.2em] font-black text-[10px]">{isAr ? "الدعم" : "Support"}</a>
             </div>
           </div>
         </div>
@@ -1275,7 +1565,8 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-
-    </div>
-  );
+    </>
+  )}
+</div>
+);
 }
