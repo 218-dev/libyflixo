@@ -230,6 +230,35 @@ export default function App() {
     setSelectedMovie(movie);
   };
 
+  const handleVLCStream = (streamUrl: string) => {
+    // Clean URL and remove protocol
+    const cleanUrl = streamUrl.replace(/^https?:\/\//, '');
+    
+    // Custom links for platform/OS
+    const vlcLink = "vlc://" + cleanUrl;         // iOS/iPadOS
+    const androidLink = "intent://" + cleanUrl + "#Intent;scheme=http;package=org.videolan.vlc;end"; // Android
+
+    // Detect platform
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const finalLink = isAndroid ? androidLink : vlcLink;
+
+    // Try to open application
+    window.location.href = finalLink;
+
+    // Fallback if app doesn't open - Redirect to Download
+    setTimeout(() => {
+      if (document.hasFocus()) {
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const downloadUrl = isAndroid 
+          ? "https://play.google.com/store/apps/details?id=org.videolan.vlc" 
+          : isIOS 
+            ? "https://apps.apple.com/app/vlc-for-mobile/id650377962"
+            : "https://www.videolan.org/vlc/";
+        window.open(downloadUrl, "_blank");
+      }
+    }, 2500);
+  };
+
   // Fetch movies handler
   const fetchMovies = async () => {
     setLoading(true);
@@ -1005,7 +1034,7 @@ export default function App() {
                             </span>
                             {ep.sources.length > 0 && (
                               <button
-                                onClick={() => window.open(ep.sources[0].streamUrl, "_blank")}
+                                onClick={() => handleVLCStream(ep.sources[0].streamUrl)}
                                 className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[10px] font-black"
                               >
                                 {isAr ? "شاهد" : "Watch"}
@@ -1059,7 +1088,7 @@ export default function App() {
                         onClick={() => {
                           const url = selectedMovie.sources[activeSourceIndex]?.streamUrl;
                           if (url) {
-                            window.open(url, "_blank");
+                            handleVLCStream(url);
                           }
                         }}
                         className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 border border-red-500 text-sm font-bold text-white transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
