@@ -8,6 +8,20 @@ export interface MovieSource {
   isExternalServer: boolean;
 }
 
+export interface Episode {
+  id: string;
+  seriesId: string;
+  seasonNumber: number;
+  episodeNumber: number;
+  title: string;
+  titleAr: string | null;
+  titleEn: string | null;
+  description: string | null;
+  duration: number | null;
+  thumbnailUrl: string | null;
+  sources: MovieSource[];
+}
+
 export interface MovieCategory {
   id: string;
   name: string;
@@ -45,6 +59,7 @@ export interface Movie {
   sources: MovieSource[];
   category: MovieCategory;
   externalMetadata: ExternalMetadata | null;
+  episodes?: Episode[];
 }
 
 export type Language = "ar" | "en";

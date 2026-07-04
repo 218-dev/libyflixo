@@ -13,28 +13,28 @@ const translations = {
   en: {
     title: "LIBYFLIX",
     portal: "",
-    subtitle: "Stream your favorite movies, classics, and releases",
-    searchPlaceholder: "Search by title, director, cast...",
-    mostViewed: "Most Viewed",
-    allMovies: "All Movies",
-    categories: "Categories",
-    arabicMovies: "Arabic Movies",
-    foreignMovies: "Foreign Movies",
-    platforms: "Platform Movies",
+    subtitle: "Stream your favorite series, classics, and releases",
+    searchPlaceholder: "Search by series title, director, cast...",
+    mostViewed: "Most Viewed Series",
+    allMovies: "All Series",
+    categories: "Series Sections",
+    arabicMovies: "Arabic Series",
+    foreignMovies: "Foreign Series",
+    platforms: "Platform Series",
     rating: "Rating",
     year: "Year",
-    duration: "Duration",
+    duration: "Episodes",
     views: "Views",
     watchNow: "Watch Now",
-    noMovies: "No movies found. Try another search or category.",
+    noMovies: "No series found. Try another search or category.",
     all: "All",
-    loading: "Loading cinematic catalog...",
+    loading: "Loading series catalog...",
     backToHome: "Back to Home",
     genre: "Genre",
     playInApp: "Play in Browser",
-    featured: "Featured Film",
-    popularRightNow: "Popular Right Now",
-    exploreByCat: "Explore by Category",
+    featured: "Featured Series",
+    popularRightNow: "Popular Series Right Now",
+    exploreByCat: "Explore Series by Category",
     retry: "Retry Connection",
     apiError: "Could not connect to Libyflix servers. Please check your network or try again.",
     showingResults: "Showing results for",
@@ -60,28 +60,28 @@ const translations = {
   ar: {
     title: "ليبيفليكس",
     portal: "",
-    subtitle: "بث ومشاهدة أفلامك المفضلة، الكلاسيكيات، وأحدث الإصدارات",
-    searchPlaceholder: "ابحث باسم الفيلم، المخرج، الممثلين...",
-    mostViewed: "الأكثر مشاهدة",
-    allMovies: "جميع الأفلام",
-    categories: "الأقسام",
-    arabicMovies: "أفلام عربية",
-    foreignMovies: "أفلام أجنبية",
-    platforms: "أفلام منصات",
+    subtitle: "بث ومشاهدة مسلسلاتك المفضلة، الكلاسيكيات، وأحدث الإصدارات",
+    searchPlaceholder: "ابحث باسم المسلسل، المخرج، الممثلين...",
+    mostViewed: "المسلسلات الأكثر مشاهدة",
+    allMovies: "جميع المسلسلات",
+    categories: "أقسام المسلسلات",
+    arabicMovies: "مسلسلات عربية",
+    foreignMovies: "مسلسلات أجنبية",
+    platforms: "مسلسلات منصات",
     rating: "التقييم",
     year: "السنة",
-    duration: "المدة",
+    duration: "الحلقات",
     views: "المشاهدات",
     watchNow: "شاهد الآن",
-    noMovies: "لم يتم العثور على أفلام. جرب البحث عن كلمة أخرى أو قسم آخر.",
+    noMovies: "لم يتم العثور على مسلسلات. جرب البحث عن كلمة أخرى أو قسم آخر.",
     all: "الكل",
-    loading: "جاري تحميل قائمة الأفلام...",
+    loading: "جاري تحميل قائمة المسلسلات...",
     backToHome: "العودة للرئيسية",
     genre: "التصنيف",
     playInApp: "تشغيل في المتصفح",
-    featured: "الفيلم المميز اليوم",
-    popularRightNow: "رائج الآن على المنصة",
-    exploreByCat: "استكشف حسب القسم",
+    featured: "مسلسل اليوم المميز",
+    popularRightNow: "رائج الآن من المسلسلات",
+    exploreByCat: "استكشف المسلسلات حسب القسم",
     retry: "إعادة المحاولة",
     apiError: "فشل الاتصال بسيرفرات ليبيفليكس. يرجى التحقق من الشبكة وإعادة المحاولة.",
     showingResults: "عرض نتائج البحث عن",
@@ -106,54 +106,9 @@ const translations = {
   }
 };
 
-const CATEGORIES = [
-  { id: "most-viewed", nameAr: "الأكثر مشاهدة", nameEn: "Most Viewed", library: null },
-  { id: "recently-added", nameAr: "المضافة حديثاً", nameEn: "Recently Added", library: null },
-  
-  // Arabic Section
-  { id: "a41d4764-d74e-4df3-a5aa-51e1725fe42e", nameAr: "جميع الأفلام العربية", nameEn: "All Arabic Movies", library: "xui2" },
-  { id: "f2716b19-c97c-4c16-addb-fb04563a2343", nameAr: "أفلام السينما العربية", nameEn: "Arabic Cinema Now", library: "xui2" },
-  { id: "0f8ed567-2cde-45de-9a13-cafdfeb4c925", nameAr: "أفلام عربية كلاسيكية", nameEn: "Arabic Classic Movies", library: "xui2" },
-  { id: "38a1a891-8de3-4b1b-9a93-2f5cff19f26e", nameAr: "مسرحيات عربية ومصرية", nameEn: "Arabic Plays", library: "xui2" },
-  { id: "2185cd2d-f379-4584-8caa-5884bced7150", nameAr: "كلاسيكيات عربية (أرشيف)", nameEn: "Arabic Classics (Archive)", library: "xui" },
-  { id: "49efe25d-b1ea-4608-b311-90c805df122c", nameAr: "أفلام مدبلجة للعربية", nameEn: "Arabic Dubbed Movies", library: "xui2" },
-
-  // Foreign Section
-  { id: "7bd112fc-a3c2-49ab-a3d7-5287ffd1d045", nameAr: "الأفلام الأجنبية العامة", nameEn: "Foreign Movies", library: "xui2" },
-  { id: "bc687f7d-61ee-4577-9bbd-b20a56c9d374", nameAr: "أفلام أجنبية منصات", nameEn: "Foreign English Channels", library: "xui2" },
-  { id: "9ec354e5-4707-4161-9dab-b51f899b29d8", nameAr: "كلاسيكيات أجنبية (أرشيف)", nameEn: "Foreign Classics (Archive)", library: "xui" },
-  { id: "3443bc74-5492-4abb-a8f1-26b15f6bb814", nameAr: "أفلام آسيوية (أرشيف)", nameEn: "Asian Movies (Archive)", library: "xui" },
-  { id: "8868c888-9141-4219-a7af-55a22ceb2746", nameAr: "أفلام آسيوية", nameEn: "Asia Movies", library: "xui2" },
-
-  // Indian / Bollywood Section
-  { id: "baa2d0f9-19ef-4317-adb6-5ef89ff1448e", nameAr: "أفلام هندية (أرشيف)", nameEn: "Indian Movies (Archive)", library: "xui" },
-  { id: "257f6736-a3d8-4c08-b3fc-e415e5cad5be", nameAr: "أفلام هندية (بوليوود)", nameEn: "Indian Movies (IN)", library: "xui2" },
-  { id: "34d94e47-e9d9-4e11-a19d-b956ab159f33", nameAr: "أفلام هندية مدبلجة", nameEn: "Indian Hindi Dubbed", library: "xui2" },
-  { id: "372d584b-1188-4585-bae9-edc1c18a245e", nameAr: "أفلام هندية بالإنجليزية", nameEn: "Indian Movies (English)", library: "xui2" },
-  { id: "11a3404b-3f39-4d53-aee8-8fef1b1605c8", nameAr: "إصدارات هندية جديدة", nameEn: "Indian New Releases", library: "xui2" },
-  { id: "19cab6fd-085d-4218-a429-bd2b7ba62eab", nameAr: "أفلام هندية تصوير سينما", nameEn: "Indian Cam Releases", library: "xui2" },
-  { id: "6722c954-cb9f-4a83-ad79-885a0021e7f3", nameAr: "أفلام تاميلية", nameEn: "Tamil Movies", library: "xui2" },
-  { id: "554dddbd-22e4-4a4e-96a8-4a8723392b8c", nameAr: "أفلام كانادا الهندية", nameEn: "Kannada Movies", library: "xui2" },
-  { id: "506e2a38-7c93-4a29-b356-e90bb2954025", nameAr: "أفلام تيلوغو الهندية", nameEn: "Telugu Movies", library: "xui2" },
-  { id: "1a1553b9-14db-4c8c-ae9b-ade4eee88c75", nameAr: "أفلام غوجاراتية", nameEn: "Gujarati Movies", library: "xui2" },
-  { id: "9d176960-02e0-4c43-8b74-a5fc82f8d331", nameAr: "أفلام بنجابية", nameEn: "Punjabi Movies", library: "xui2" },
-  { id: "fa4270c1-51fb-4be3-aea2-f5f08ce3a683", nameAr: "أفلام ماليالام", nameEn: "Malayalam Movies", library: "xui2" },
-
-  // Kids Section
-  { id: "a96c50a7-753f-4cb4-93e4-efd160cb51e4", nameAr: "أفلام أطفال بالإنجليزية", nameEn: "English Kids Movies", library: "xui2" },
-  { id: "358c4a4c-0dba-4ded-a6e2-1f746caa2cfd", nameAr: "أفلام نتفليكس للأطفال", nameEn: "Netflix Kids", library: "xui2" },
-  { id: "4fceae61-def5-421b-81e7-b45c15312c83", nameAr: "أفلام أطفال هندية", nameEn: "Indian Kids Movies", library: "xui2" },
-
-  // Turkish Section
-  { id: "641f4158-ba81-4218-b2fc-01c74e21b784", nameAr: "سينما تركية", nameEn: "Turkish Cinema", library: "xui2" },
-  { id: "48fb9f1b-c5f6-4ad3-a3c2-cd09737b4cbf", nameAr: "أفلام أطفال تركية", nameEn: "Turkish Kids Movies", library: "xui2" },
-  { id: "e1ca4688-cfcc-4655-85a5-22de4714e7f3", nameAr: "أفلام نتفليكس التركية", nameEn: "Turkish Netflix Movies", library: "xui2" },
-
-  // Platforms & Others
-  { id: "a70a14e2-7576-4a65-8ac7-a144745345ce", nameAr: "أفلام نتفليكس", nameEn: "Netflix Movies", library: "xui2" },
-  { id: "5998a86a-7645-4963-847a-fdb07b4e6ba9", nameAr: "أفلام أمازون", nameEn: "Amazon Movies", library: "xui2" },
-  { id: "0f2453ec-da3a-4327-b1d9-ef87704c5957", nameAr: "عروض المصارعة WWE", nameEn: "WWE Shows", library: "xui2" },
-  { id: "69e9a8d2-2e75-415c-b5f2-cb87b2171f1c", nameAr: "رياضة وألعاب", nameEn: "Sports", library: "xui" }
+const STATIC_CATEGORIES = [
+  { id: "most-viewed", nameAr: "الأكثر مشاهدة", nameEn: "Most Viewed" },
+  { id: "recently-added", nameAr: "المضافة حديثاً", nameEn: "Recently Added" },
 ];
 
 export default function App() {
@@ -165,13 +120,57 @@ export default function App() {
   // Navigation & Search State
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("most-viewed");
+  const [contentType, setContentType] = useState<"movie" | "series">("series");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [siteStats, setSiteStats] = useState({ movies: 0, series: 0 });
   
   // Selection
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [activeSourceIndex, setActiveSourceIndex] = useState<number>(0);
+  const [dynamicCategories, setDynamicCategories] = useState<{id: string, nameAr: string, nameEn: string, library: string}[]>([]);
+
+  // Fetch categories based on content type
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const endpoint = contentType === 'series' ? '/api/series' : '/api/movies';
+        const response = await fetch(`${endpoint}?page=1&limit=80`);
+        if (response.ok) {
+          const json = await response.json();
+          const items = Array.isArray(json) ? json : (json.data || []);
+          if (Array.isArray(items)) {
+            const extracted = [
+              ...new Map(
+                items
+                  .filter(item => item.category)
+                  .map(item => [
+                    item.category.id,
+                    {
+                      id: item.category.id,
+                      nameAr: item.category.nameAr || item.category.name,
+                      nameEn: item.category.nameEn || item.category.name,
+                      library: item.category.externalSource || item.externalSource || "xui2"
+                    },
+                  ])
+              ).values(),
+            ];
+            setDynamicCategories(extracted as any);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load dynamic categories", e);
+      }
+    };
+    loadCategories();
+  }, [contentType]);
+
+  // Reset category when content type changes
+  useEffect(() => {
+    setActiveCategory("most-viewed");
+    setPage(1);
+  }, [contentType]);
 
   // Reset active source when movie selection changes
   useEffect(() => {
@@ -214,7 +213,20 @@ export default function App() {
   const t = translations[language];
 
   // Play movie in-page by setting the selectedMovie state
-  const playMovie = (movie: Movie) => {
+  const playMovie = async (movie: Movie) => {
+    if (contentType === 'series') {
+      // Fetch details including episodes
+      try {
+        const response = await fetch(`/api/series/${movie.id}`);
+        if (response.ok) {
+           const fullMovie = await response.json();
+           setSelectedMovie(fullMovie);
+           return;
+        }
+      } catch (e) {
+        console.error("Failed to fetch series details", e);
+      }
+    }
     setSelectedMovie(movie);
   };
 
@@ -227,25 +239,34 @@ export default function App() {
       
       // 1. If searching, fetch from search endpoint
       if (searchQuery.trim().length > 0) {
-        url = `/api/movies?search=${encodeURIComponent(searchQuery)}`;
+        url = `/api/${contentType === 'series' ? 'series' : 'movies'}?search=${encodeURIComponent(searchQuery)}`;
       } 
-      // 2. If most-viewed category
+      // 2. If most-viewed
       else if (activeCategory === "most-viewed") {
-        url = `/api/movies/most-viewed?limit=18`;
+        url = `/api/${contentType === 'series' ? 'series' : 'movies'}/most-viewed?limit=18`;
       } 
-      // 3. If recently-added category
+      // 3. If recently-added
       else if (activeCategory === "recently-added") {
-        url = `/api/movies?page=${page}&limit=24&library=xui2`;
+        url = `/api/${contentType === 'series' ? 'series' : 'movies'}?page=${page}&limit=24&library=xui2`;
       }
       // 4. Else standard category paginated endpoint
       else {
-        const cat = CATEGORIES.find(c => c.id === activeCategory);
-        url = `/api/movies?page=${page}&limit=24&categoryId=${activeCategory}&library=${cat?.library || "xui2"}`;
+        const endpoint = contentType === 'series' ? '/api/series' : '/api/movies';
+        const cat = dynamicCategories.find(c => c.id === activeCategory);
+        url = `${endpoint}?page=${page}&limit=24&categoryId=${activeCategory}&library=${cat?.library || "xui2"}`;
       }
 
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error("Failed to receive data from server");
+        let errorMessage = "Failed to receive data from server";
+        try {
+          const errorJson = await response.json();
+          if (errorJson.details) errorMessage += `: ${errorJson.details}`;
+          else if (errorJson.error) errorMessage = errorJson.error;
+        } catch (e) {
+          // not a json error
+        }
+        throw new Error(errorMessage);
       }
       
       const json = await response.json();
@@ -274,11 +295,54 @@ export default function App() {
     }
   };
 
-  // Fetch featured movies specifically from API on mount
+  // Fetch site statistics on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // User requested specific stats: 1761 pages for movies, 568 pages for series
+        // Each page has 24 items
+        const moviePages = 1761;
+        const seriesPages = 568;
+        
+        setSiteStats({
+          movies: moviePages * 24,
+          series: seriesPages * 24
+        });
+        
+        // We still fetch to check connectivity but prioritize the requested numbers
+        const [moviesRes, seriesRes] = await Promise.all([
+          fetch("/api/movies?page=1&limit=1"),
+          fetch("/api/series?page=1&limit=1")
+        ]);
+        
+        if (moviesRes.ok && seriesRes.ok) {
+          const moviesData = await moviesRes.json();
+          const seriesData = await seriesRes.json();
+          
+          // If the API actually provides meta data, we could use it, 
+          // but the user explicitly asked for these specific page counts.
+          // Total = totalPages * 24 as requested
+          if (moviesData.meta?.totalPages > 1000) { // Only override if API seems to match user's massive scale
+             setSiteStats(prev => ({
+               ...prev,
+               movies: moviesData.meta.totalPages * 24,
+               series: seriesData.meta.totalPages * 24
+             }));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch site statistics", e);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Fetch featured content specifically from API when content type changes
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const response = await fetch("/api/movies/most-viewed?limit=6");
+        const endpoint = contentType === 'series' ? '/api/series' : '/api/movies';
+        const response = await fetch(`${endpoint}/most-viewed?limit=6`);
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
@@ -286,11 +350,11 @@ export default function App() {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch featured movies for slider:", error);
+        console.error("Failed to fetch featured content for slider:", error);
       }
     };
     fetchFeatured();
-  }, []);
+  }, [contentType]);
 
   // Slide rotation timer (auto-transition every 6s)
   useEffect(() => {
@@ -337,7 +401,7 @@ export default function App() {
   // Run query when category, search query, or page changes
   useEffect(() => {
     fetchMovies();
-  }, [activeCategory, page]);
+  }, [activeCategory, page, contentType, searchQuery]);
 
   // Handle Search triggers
   const handleSearchSubmit = (e: FormEvent) => {
@@ -373,60 +437,80 @@ export default function App() {
       <div className="absolute top-0 left-1/4 right-1/4 h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Navbar Header */}
-      <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900/80 px-4 py-4 md:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-900/80 px-4 py-3 md:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           
-          {/* Logo / Title */}
-          <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => selectCategory("most-viewed")}>
-            <span className="text-2xl md:text-3xl font-black tracking-tighter text-red-600 font-sans flex items-center gap-1">
-              {isAr ? (
-                <>
-                  <span className="text-white">ليبيـ</span>فليكس
-                </>
-              ) : (
-                <>
-                  LIBY<span className="text-white">FLIX</span>
-                </>
-              )}
-            </span>
-            <div className="h-5.5 w-[1px] bg-zinc-800 hidden sm:block" />
-            <p className="text-[10px] text-zinc-400 font-bold hidden sm:block tracking-wide bg-red-950/30 border border-red-900/30 px-2 py-0.5 rounded-md">PRO</p>
+          {/* Logo & Toggle Vertical Block */}
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <div 
+              className="cursor-pointer group flex flex-col items-center md:items-start mb-1 select-none"
+              onClick={() => {
+                setSearchQuery("");
+                setActiveCategory("most-viewed");
+                setPage(1);
+              }}
+            >
+              <h1 className="text-3xl md:text-4xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-105">
+                {isAr ? (
+                  <>
+                    <span className="text-white">ليبيـ</span>
+                    <span className="text-red-600">فليكس</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-white">LIBY</span>
+                    <span className="text-red-600">FLIX</span>
+                  </>
+                )}
+              </h1>
+              <div className="h-1 w-full bg-gradient-to-r from-red-600 to-transparent rounded-full mt-0.5 opacity-50" />
+            </div>
+
+            {/* Content Type Toggle - Under Logo */}
+            <button
+              onClick={() => setContentType(contentType === "movie" ? "series" : "movie")}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full border-2 transition-all duration-500 font-black text-[10px] uppercase tracking-tighter cursor-pointer shadow-lg active:scale-95 ${
+                contentType === "movie" 
+                  ? "bg-red-600/10 border-red-600/40 text-red-500 hover:bg-red-600/20" 
+                  : "bg-blue-600/10 border-blue-600/40 text-blue-500 hover:bg-blue-600/20"
+              }`}
+            >
+              {contentType === "movie" ? <Film className="h-3 w-3" /> : <Tv className="h-3 w-3" />}
+              <span>{contentType === "movie" ? (isAr ? "قسم الأفلام" : "Movies Portal") : (isAr ? "قسم المسلسلات" : "Series Portal")}</span>
+            </button>
           </div>
 
           {/* Search bar & Language Toggle */}
-          <div className="flex items-center gap-3 w-full sm:w-auto flex-1 max-w-md justify-end">
-            <form onSubmit={handleSearchSubmit} className="relative w-full">
+          <div className="flex items-center gap-4 w-full md:w-auto flex-1 max-w-2xl justify-end">
+            <form onSubmit={handleSearchSubmit} className="relative w-full group">
               <input
                 type="text"
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800 focus:border-red-500/50 rounded-xl pl-4 pr-10 py-2.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-red-500/20 transition-all"
+                className="w-full bg-zinc-900/40 hover:bg-zinc-900 border-2 border-zinc-800/80 focus:border-red-600/60 rounded-2xl pl-12 pr-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-4 focus:ring-red-600/5 transition-all duration-300"
               />
-              <button 
-                type="submit" 
-                className={`absolute inset-y-0 ${isAr ? "left-3" : "right-3"} flex items-center text-zinc-500 hover:text-red-500 transition-colors`}
-              >
-                <Search className="h-4 w-4" />
-              </button>
+              <div className={`absolute inset-y-0 ${isAr ? "right-4" : "left-4"} flex items-center text-zinc-500 group-focus-within:text-red-500 transition-colors`}>
+                <Search className="h-4.5 w-4.5" />
+              </div>
+              
               {searchQuery && (
                 <button
                   type="button"
                   onClick={clearSearch}
-                  className={`absolute inset-y-0 ${isAr ? "left-9" : "right-9"} text-[10px] text-zinc-500 hover:text-white flex items-center`}
+                  className={`absolute inset-y-0 ${isAr ? "left-4" : "right-4"} text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest`}
                 >
-                  {t.clearSearch}
+                  {isAr ? "مسح" : "Clear"}
                 </button>
               )}
             </form>
 
-            {/* Language Switcher */}
             <button
               onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-300 hover:text-white hover:border-zinc-700 transition-all cursor-pointer whitespace-nowrap"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-2xl bg-zinc-900/50 border-2 border-zinc-800 text-[10px] font-black text-zinc-400 hover:text-white hover:border-zinc-600 transition-all cursor-pointer backdrop-blur-md"
             >
-              <Globe className="h-3.5 w-3.5 text-red-500" />
-              <span>{isAr ? "English" : "العربية"}</span>
+              <Globe className="h-3.5 w-3.5 text-red-600" />
+              <span>{isAr ? "EN" : "AR"}</span>
             </button>
           </div>
         </div>
@@ -520,7 +604,20 @@ export default function App() {
             {t.exploreByCat}
           </h3>
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.slice(0, 4).map((cat) => (
+            {STATIC_CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => selectCategory(cat.id)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+                  activeCategory === cat.id && !searchQuery
+                    ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                    : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+                }`}
+              >
+                <span>{isAr ? cat.nameAr : cat.nameEn}</span>
+              </button>
+            ))}
+            {dynamicCategories.slice(0, 3).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => selectCategory(cat.id)}
@@ -550,7 +647,7 @@ export default function App() {
                 <button onClick={() => setIsSidebarOpen(false)} className="text-zinc-400 hover:text-white">✕</button>
               </div>
               <div className="flex flex-col gap-2">
-                {CATEGORIES.slice(4).map((cat) => (
+                {dynamicCategories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => {
@@ -579,11 +676,11 @@ export default function App() {
                 {searchQuery 
                   ? `${t.showingResults}: "${searchQuery}"`
                   : (isAr 
-                      ? CATEGORIES.find(c => c.id === activeCategory)?.nameAr 
-                      : CATEGORIES.find(c => c.id === activeCategory)?.nameEn)}
+                      ? [...STATIC_CATEGORIES, ...dynamicCategories].find(c => c.id === activeCategory)?.nameAr 
+                      : [...STATIC_CATEGORIES, ...dynamicCategories].find(c => c.id === activeCategory)?.nameEn)}
               </h2>
               <p className="text-[11px] text-zinc-500 mt-1 font-medium">
-                {isAr ? `${movies.length} فيلم متاح حالياً` : `${movies.length} movies available currently`}
+                {isAr ? `${movies.length} مسلسل متاح حالياً` : `${movies.length} series available currently`}
               </p>
             </div>
           </div>
@@ -711,20 +808,67 @@ export default function App() {
       </main>
 
       {/* Footer Branding Area */}
-      <footer className="mt-auto border-t border-zinc-900 bg-zinc-950 py-8 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center text-xs text-zinc-500 font-medium">
-          <div className="flex items-center gap-2">
-            <Film className="h-4 w-4 text-red-600" />
-            <span>© 2026 {t.title}.</span>
+      <footer className="mt-auto border-t border-zinc-900 bg-zinc-950 py-12 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Site Stats Footer Dashboard */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 pb-10 border-b border-zinc-900/50">
+            <div className="flex flex-col items-center md:items-start">
+              <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2">{isAr ? "إجمالي الأفلام" : "Total Movies"}</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-white tracking-tighter">{(siteStats.movies).toLocaleString()}</span>
+                <span className="text-[10px] text-zinc-600 font-bold uppercase">{isAr ? "محتوى" : "Titles"}</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center md:items-start">
+              <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2">{isAr ? "إجمالي المسلسلات" : "Total Series"}</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black text-white tracking-tighter">{(siteStats.series).toLocaleString()}</span>
+                <span className="text-[10px] text-zinc-600 font-bold uppercase">{isAr ? "محتوى" : "Series"}</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center md:items-start">
+              <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2">{isAr ? "حالة الخدمة" : "Service Status"}</span>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="text-sm font-black text-emerald-500 uppercase tracking-wider">{isAr ? "متصل" : "Live"}</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center md:items-start">
+              <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2">{isAr ? "دقة البث" : "Streaming Quality"}</span>
+              <span className="text-sm font-black text-red-600 uppercase tracking-widest">4K UHD / HDR</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 justify-center bg-zinc-900/40 border border-zinc-850 px-4 py-1.5 rounded-full text-zinc-400 font-extrabold text-[11px] transition-all hover:border-red-500/20 hover:text-white">
-            <span>صُنع بـ</span>
-            <span className="text-red-500 animate-pulse">❤️</span>
-            <span>في البيضاء - ليبيا</span>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center text-xs text-zinc-500 font-medium">
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <div className="flex items-center gap-1 text-xl font-black tracking-tighter">
+                {isAr ? (
+                  <>
+                    <span className="text-zinc-300">ليبيـ</span>
+                    <span className="text-red-600">فليكس</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-zinc-300">LIBY</span>
+                    <span className="text-red-600">FLIX</span>
+                  </>
+                )}
+              </div>
+              <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">© 2026 {t.allRightsReserved}</span>
+            </div>
+            
+            <div className="flex items-center gap-1.5 justify-center bg-zinc-900/40 border border-zinc-850 px-5 py-2 rounded-2xl text-zinc-400 font-extrabold text-[11px] transition-all hover:border-red-600/30 hover:text-white">
+              <span>صُنع بـ</span>
+              <span className="text-red-600 animate-pulse scale-125 mx-1">❤️</span>
+              <span>في البيضاء - ليبيا</span>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-widest font-black text-[10px]">{isAr ? "سياسة الخصوصية" : "Privacy"}</a>
+              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-widest font-black text-[10px]">{isAr ? "الشروط" : "Terms"}</a>
+              <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-widest font-black text-[10px]">{isAr ? "الدعم" : "Support"}</a>
+            </div>
           </div>
-          <p className="max-w-md md:text-right text-[11px] leading-relaxed">
-            {t.allRightsReserved}
-          </p>
         </div>
       </footer>
 
@@ -828,11 +972,48 @@ export default function App() {
                   {selectedMovie.description && (
                     <div className="flex flex-col gap-2">
                       <h4 className="text-xs font-black uppercase tracking-wider text-zinc-400">
-                        {isAr ? "قصة الفيلم" : "Synopsis"}
+                        {isAr ? "قصة المسلسل" : "Synopsis"}
                       </h4>
                       <p className="text-sm md:text-base text-zinc-300 leading-relaxed font-medium">
                         {isAr ? selectedMovie.descriptionAr || selectedMovie.description : selectedMovie.descriptionEn || selectedMovie.description}
                       </p>
+                    </div>
+                  )}
+
+                  {/* Episodes List */}
+                  {selectedMovie.episodes && selectedMovie.episodes.length > 0 && (
+                    <div className="flex flex-col gap-3 pt-3 border-t border-zinc-800/60">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-red-500">
+                        {isAr ? "الحلقات" : "Episodes"} ({selectedMovie.episodes.length})
+                      </h4>
+                      <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+                        {selectedMovie.episodes
+                          .sort((a, b) => a.seasonNumber - b.seasonNumber || a.episodeNumber - b.episodeNumber)
+                          .map((ep) => (
+                          <div key={ep.id} className="bg-zinc-900 border border-zinc-800 p-3 rounded-xl flex items-center gap-3">
+                            <span className={`text-[10px] font-black uppercase tracking-tighter px-2 py-1 rounded bg-zinc-800/50 text-zinc-500 shrink-0 ${isAr ? "order-last" : ""}`}>
+                              {isAr ? (
+                                `م${ep.seasonNumber} ح${ep.episodeNumber}`
+                              ) : (
+                                `S${ep.seasonNumber}E${ep.episodeNumber}`
+                              )}
+                            </span>
+                            <span className={`text-sm font-bold text-zinc-200 flex-1 ${isAr ? "text-right" : "text-left"}`}>
+                              {isAr && ep.title.toLowerCase().startsWith("episode") 
+                                ? ep.title.replace(/episode/i, "الحلقة") 
+                                : ep.title}
+                            </span>
+                            {ep.sources.length > 0 && (
+                              <button
+                                onClick={() => window.open(ep.sources[0].streamUrl, "_blank")}
+                                className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[10px] font-black"
+                              >
+                                {isAr ? "شاهد" : "Watch"}
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
