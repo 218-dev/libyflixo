@@ -2,11 +2,12 @@ import express from "express";
 import path from "path";
 import axios from "axios";
 import { createServer as createViteServer } from "vite";
+const GOLIVE_API = "https://admin.golive-pro.online/api";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
-  const GOLIVE_API = "https://abdo218.alwaysdata.net/libyflix/api.php?path=";
+
   app.use(express.json());
 
   // API routes
