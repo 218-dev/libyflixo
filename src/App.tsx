@@ -1873,7 +1873,10 @@ export default function App() {
                       referrerPolicy="no-referrer"
                     />
                     
-                 
+                    {/* Pop-up Ad Blocker Indicator Overlay */}
+                    
+                </div>
+              )}
 
 
               {/* Movie Details Content Grid */}
