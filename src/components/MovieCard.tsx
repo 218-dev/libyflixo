@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Star, Eye, Calendar, Tv } from "lucide-react";
+import { Star, Eye, Calendar, Tv, Heart } from "lucide-react";
 import { Movie, Language } from "../types";
 
 import ImageWithFallback from "./ImageWithFallback";
@@ -9,9 +9,11 @@ export interface MovieCardProps {
   movie: Movie;
   language: Language;
   onClick: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
+const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick, isFavorite = false, onToggleFavorite }) => {
   const isAr = language === "ar";
   
   // Choose the best title based on language selection
@@ -60,7 +62,15 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
           <div className="flex items-center gap-1.5 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-medium text-red-500 border border-zinc-850 backdrop-blur-sm">
             <Tv className="h-3 w-3 text-red-500" />
             <span>
-              {isAr ? (movie.category?.nameAr || movie.category?.name || (isMovie ? 'فيلم' : 'مسلسل')) : (movie.category?.nameEn || movie.category?.name || (isMovie ? 'Movie' : 'Series'))}
+              {isAr ? (
+                movie.library === 'server2'
+                  ? (isMovie ? 'فيلم' : 'مسلسل')
+                  : (movie.category?.nameAr || movie.category?.name || (isMovie ? 'فيلم' : 'مسلسل'))
+              ) : (
+                movie.library === 'server2'
+                  ? (isMovie ? 'Movie' : 'Series')
+                  : (movie.category?.nameEn || movie.category?.name || (isMovie ? 'Movie' : 'Series'))
+              )}
             </span>
           </div>
           {movie.library === 'server2' && (
@@ -77,6 +87,21 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
             <span>{movie.rating.toFixed(1)}</span>
           </div>
         )}
+
+        {/* Floating Favorite Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite?.();
+          }}
+          className={`absolute bottom-3 right-3 z-20 p-2.5 rounded-xl border backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-90 shadow-lg cursor-pointer ${
+            isFavorite
+              ? "bg-red-600 border-red-500 text-white shadow-red-950/20"
+              : "bg-black/60 border-zinc-800 text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Heart className={`h-3.5 w-3.5 ${isFavorite ? "fill-current" : ""}`} />
+        </button>
 
         {/* Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
