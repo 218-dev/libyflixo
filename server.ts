@@ -15,6 +15,122 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  app.get("/api/stats", async (req, res) => {
+    try {
+      const s1MoviesPromise = axios.get("https://admin.golive-pro.online/api/content/movies?page=999", { timeout: 10000 });
+      const s1SeriesPromise = axios.get("https://admin.golive-pro.online/api/content/series?page=999", { timeout: 10000 });
+
+      // Helper to probe a specific page for Server 2
+      const checkS2Page = async (contentType: string, page: number) => {
+        try {
+          const response = await axios.get("https://aljabalitv.w4c.net/api/mobile/catalog", {
+            params: { page, limit: 50, contentType },
+            headers: {
+              "host": "aljabalitv.w4c.net",
+              "x-app-locale": "ar-EG",
+              "user-agent": "okhttp/4.12.0"
+            },
+            timeout: 8000
+          });
+          return {
+            page,
+            itemsCount: response.data.items?.length || 0,
+            hasMore: !!response.data.hasMore
+          };
+        } catch (err: any) {
+          console.error(`Error page ${page} for ${contentType}:`, err.message);
+          return { page, error: true, itemsCount: 0, hasMore: false };
+        }
+      };
+
+      // Helper to find actual total content count for Server 2
+      const findS2Total = async (contentType: string) => {
+        const steps = contentType === "movie" ? [1, 25, 50, 75, 100, 125, 150] : [1, 5, 10, 15, 20];
+        const probes = await Promise.all(steps.map(p => checkS2Page(contentType, p)));
+
+        let lowerBound = 1;
+        let upperBound = contentType === "movie" ? 200 : 30;
+
+        for (const p of probes) {
+          if (p.error) continue;
+          if (p.itemsCount > 0 && p.hasMore) {
+            lowerBound = Math.max(lowerBound, p.page);
+          }
+          if (p.itemsCount === 0 || !p.hasMore) {
+            upperBound = Math.min(upperBound, p.page);
+          }
+        }
+
+        let low = lowerBound;
+        let high = upperBound;
+        let lastValidPage: any = null;
+
+        while (low <= high) {
+          const mid = Math.floor((low + high) / 2);
+          const probed = probes.find(p => p.page === mid && !p.error);
+          const info = probed || await checkS2Page(contentType, mid);
+
+          if (info.itemsCount > 0) {
+            lastValidPage = info;
+            if (info.hasMore) {
+              low = mid + 1;
+            } else {
+              break;
+            }
+          } else {
+            high = mid - 1;
+          }
+        }
+
+        if (lastValidPage) {
+          return (lastValidPage.page - 1) * 50 + lastValidPage.itemsCount;
+        }
+        return contentType === "movie" ? 5471 : 267; // Fallback
+      };
+
+      const [s1MoviesRes, s1SeriesRes, s2Movies, s2Series] = await Promise.all([
+        s1MoviesPromise.catch(err => {
+          console.error("Failed to fetch S1 Movies stats:", err.message);
+          return { data: { meta: { total: 1168 } } };
+        }),
+        s1SeriesPromise.catch(err => {
+          console.error("Failed to fetch S1 Series stats:", err.message);
+          return { data: { meta: { total: 363 } } };
+        }),
+        findS2Total("movie").catch(err => {
+          console.error("Failed S2 movies search:", err.message);
+          return 5471;
+        }),
+        findS2Total("series").catch(err => {
+          console.error("Failed S2 series search:", err.message);
+          return 267;
+        })
+      ]);
+
+      const s1Movies = s1MoviesRes.data?.meta?.total || 1168;
+      const s1Series = s1SeriesRes.data?.meta?.total || 363;
+
+      const totalMovies = s1Movies + s2Movies;
+      const totalSeries = s1Series + s2Series;
+
+      res.json({
+        movies: totalMovies,
+        series: totalSeries,
+        details: {
+          server1: { movies: s1Movies, series: s1Series },
+          server2: { movies: s2Movies, series: s2Series }
+        }
+      });
+    } catch (error: any) {
+      console.error("Stats API overall error:", error.message);
+      res.json({
+        movies: 1168 + 5471,
+        series: 363 + 267,
+        error: error.message
+      });
+    }
+  });
+
   app.get("/api/movies/most-viewed", async (req, res) => {
     try {
       const response = await axios.get(`${GOLIVE_API}/content/movies`, {
