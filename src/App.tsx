@@ -1873,18 +1873,7 @@ export default function App() {
                       referrerPolicy="no-referrer"
                     />
                     
-                    {/* Pop-up Ad Blocker Indicator Overlay */}
-                    <div className="absolute bottom-4 right-4 z-20 pointer-events-none">
-                      <div className="flex items-center gap-2 bg-emerald-600/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-emerald-500/50 shadow-lg">
-                        <div className="h-2 w-2 rounded-full bg-emerald-200 animate-pulse" />
-                        <span className="text-[10px] font-black text-white uppercase tracking-wider">
-                          {isAr ? "" : ""}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                 
 
 
               {/* Movie Details Content Grid */}
