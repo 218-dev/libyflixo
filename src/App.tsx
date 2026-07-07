@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Movie, Language } from "./types";
 import MovieCard from "./components/MovieCard";
+import ImageWithFallback from "./components/ImageWithFallback";
 
 // Bilingual translations for static UI elements
 const translations = {
@@ -276,15 +277,13 @@ function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: {
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
                     <div className="absolute inset-0 flex items-center justify-center p-6 gap-6">
                       <div className="w-1/3 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 shrink-0">
-                        <img 
+                        <ImageWithFallback 
                           src={featuredContent[activeSlide].posterUrl || "https://i.top4top.io/p_3839qx2t30.png"} 
                           alt={featuredContent[activeSlide].title} 
                           className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "https://i.top4top.io/p_3839qx2t30.png";
-                          }}
+                          maxRetries={3}
+                          fallbackSrc="https://i.top4top.io/p_3839qx2t30.png"
                         />
                       </div>
                       <div className="flex-1 flex flex-col justify-center text-right rtl:text-right ltr:text-left">
@@ -666,26 +665,27 @@ export default function App() {
         setDynamicCategories([
           { id: "all-movies", nameAr: "كل الأفلام", nameEn: "All Movies", library: "server2" },
           { id: "movies-foreign", nameAr: "أفلام أجنبية", nameEn: "Foreign Movies", library: "server2" },
-          { id: "movies-arabic", nameAr: "أفلام عربية", nameEn: "Arabic Movies", library: "server2" },
           { id: "eygpt-fl", nameAr: "أفلام مصرية", nameEn: "Egyptian Movies", library: "server2" },
           { id: "moviestr", nameAr: "أفلام تركية", nameEn: "Turkish Movies", library: "server2" },
+          { id: "netfilx-fl", nameAr: "أفلام Netflix", nameEn: "Netflix Movies", library: "server2" },
           { id: "inada-flim", nameAr: "أفلام هندية", nameEn: "Indian Movies", library: "server2" },
+          { id: "movies-arabic", nameAr: "أفلام عربية", nameEn: "Arabic Movies", library: "server2" },
           { id: "movies-asian", nameAr: "أفلام آسيوية", nameEn: "Asian Movies", library: "server2" },
           { id: "movies-classic", nameAr: "أفلام كلاسيكية", nameEn: "Classic Movies", library: "server2" },
           { id: "movies-dubbed", nameAr: "أفلام مدبلجة", nameEn: "Dubbed Movies", library: "server2" },
           { id: "movies-animation", nameAr: "أفلام أنيميشن", nameEn: "Animation Movies", library: "server2" },
-          { id: "movies-no-trans", nameAr: "أفلام أجنبية بدون ترجمة", nameEn: "Foreign Movies (No Sub)", library: "server2" },
           { id: "plays", nameAr: "مسرحيات", nameEn: "Plays", library: "server2" },
-          { id: "wrestling", nameAr: "مصارعة", nameEn: "Wrestling", library: "server2" }
+          { id: "wrestling", nameAr: "مصارعة", nameEn: "Wrestling", library: "server2" },
+          { id: "movies-no-trans", nameAr: "أفلام أجنبية بدون ترجمة", nameEn: "Foreign Movies (No Sub)", library: "server2" }
         ]);
         setActiveCategory("all-movies");
       } else {
         setDynamicCategories([
           { id: "all-series", nameAr: "كل المسلسلات", nameEn: "All Series", library: "server2" },
-          { id: "mslas-sg", nameAr: "مسلسلات أجنبية", nameEn: "Foreign Series", library: "server2" },
-          { id: "series-arabic", nameAr: "مسلسلات عربية", nameEn: "Arabic Series", library: "server2" },
           { id: "aflsa", nameAr: "مسلسلات تركية", nameEn: "Turkish Series", library: "server2" },
+          { id: "mslas-sg", nameAr: "مسلسلات أجنبية", nameEn: "Foreign Series", library: "server2" },
           { id: "trki", nameAr: "مسلسلات مصرية", nameEn: "Egyptian Series", library: "server2" },
+          { id: "series-arabic", nameAr: "مسلسلات عربية", nameEn: "Arabic Series", library: "server2" },
           { id: "series-korean", nameAr: "مسلسلات كورية", nameEn: "Korean Series", library: "server2" },
           { id: "series-cartoon", nameAr: "مسلسلات كرتون", nameEn: "Cartoon Series", library: "server2" },
           { id: "mslas-no-trans", nameAr: "مسلسلات بدون ترجمة", nameEn: "Series (No Sub)", library: "server2" },
@@ -776,8 +776,8 @@ export default function App() {
   const playMovie = async (movie: Movie) => {
     setLoading(true);
     // Detect if this movie is from Server 2 (especially in global search results)
-    const isServer2Result = (movie as any).category?.id === "search" || (movie as any).library === "server2";
-    const targetServer = isServer2Result ? "server2" : currentServer;
+    const isServer2Result = (movie as any).library === "server2" || (!(movie as any).library && (movie as any).category?.id === "search");
+    const targetServer = (movie as any).library === "server1" ? "server1" : (isServer2Result ? "server2" : currentServer);
 
     try {
       if (targetServer === "server2") {
@@ -869,11 +869,13 @@ export default function App() {
 
         if (s1MoviesRes.ok) {
           const json = await s1MoviesRes.json();
-          s1MoviesData = Array.isArray(json) ? json : (json.data || []);
+          const items = Array.isArray(json) ? json : (json.data || []);
+          s1MoviesData = items.map((item: any) => ({ ...item, library: "server1" }));
         }
         if (s1SeriesRes.ok) {
           const json = await s1SeriesRes.json();
-          s1SeriesData = Array.isArray(json) ? json : (json.data || []);
+          const items = Array.isArray(json) ? json : (json.data || []);
+          s1SeriesData = items.map((item: any) => ({ ...item, library: "server1" }));
         }
         if (s2SearchRes.ok) {
           const json = await s2SearchRes.json();
@@ -1426,15 +1428,13 @@ export default function App() {
                   {/* Cover background */}
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent z-10" />
                   <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/80 via-transparent to-zinc-950/80 z-10" />
-                  <img
+                  <ImageWithFallback
                     src={movie.backdropUrl || movie.posterUrl || "https://i.top4top.io/p_3839qx2t30.png"}
                     alt={movie.title}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover filter brightness-[0.55] saturate-[1.1] scale-100"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "https://i.top4top.io/p_3839qx2t30.png";
-                    }}
+                    maxRetries={3}
+                    fallbackSrc="https://i.top4top.io/p_3839qx2t30.png"
                   />
 
                   {/* Hero text details overlay */}
@@ -1872,9 +1872,7 @@ export default function App() {
                       sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
                       referrerPolicy="no-referrer"
                     />
-                    
-                    {/* Pop-up Ad Blocker Indicator Overlay */}
-                    
+                  </div>
                 </div>
               )}
 
@@ -1886,15 +1884,13 @@ export default function App() {
                 <div className="md:col-span-8 flex flex-col gap-5">
                   <div className="flex gap-6 items-start">
                     <div className="w-24 h-36 md:w-32 md:h-48 relative shadow-2xl border border-zinc-700 rounded-xl overflow-hidden bg-zinc-900 flex items-center justify-center">
-                      <img 
+                      <ImageWithFallback 
                         src={selectedMovie.posterUrl || selectedMovie.backdropUrl || "https://i.top4top.io/p_3839qx2t30.png"} 
                         alt={selectedMovie.title}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "https://i.top4top.io/p_3839qx2t30.png";
-                        }}
+                        maxRetries={3}
+                        fallbackSrc="https://i.top4top.io/p_3839qx2t30.png"
                       />
                     </div>
                     <div className="flex-1">
@@ -2082,15 +2078,13 @@ export default function App() {
                 <div className={`md:col-span-4 flex flex-col gap-6 pt-6 md:pt-0 ${isAr ? "md:border-r border-zinc-850 md:pr-6 md:pl-0" : "md:border-l border-zinc-850 md:pl-6 md:pr-0"}`}>
                   
                   {/* Poster Thumbnail */}
-                  <img
+                  <ImageWithFallback
                     src={selectedMovie.posterUrl || selectedMovie.backdropUrl || "https://i.top4top.io/p_3839qx2t30.png"}
                     alt={selectedMovie.title}
                     referrerPolicy="no-referrer"
                     className="w-full aspect-[2/3] object-cover rounded-2xl border border-zinc-800 hidden md:block shadow-lg"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "https://i.top4top.io/p_3839qx2t30.png";
-                    }}
+                    maxRetries={3}
+                    fallbackSrc="https://i.top4top.io/p_3839qx2t30.png"
                   />
 
                   <div className="flex flex-col gap-4 text-xs font-semibold text-zinc-400">
