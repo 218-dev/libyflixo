@@ -21,8 +21,10 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
     ? (movie.genreAr || movie.genre || "منوع")
     : (movie.genreEn || movie.genre || "General");
 
+  const isMovie = movie.type === 'movie' || (movie.sources && movie.sources.length > 0) || (movie.category?.id?.includes('movie') || false) || (!movie.type && !movie.episodes);
+
   // Fallback poster if posterUrl is null or fails
-  const posterSrc = movie.posterUrl || "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=600&auto=format&fit=crop";
+  const posterSrc = movie.posterUrl || "https://i.top4top.io/p_3839qx2t30.png";
 
   return (
     <motion.div
@@ -49,22 +51,23 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            const parent = target.parentElement!;
-            // Replace image with LibyFlix fallback
-            parent.innerHTML = `
-              <div class="w-full h-full flex items-center justify-center bg-zinc-900 text-xs font-black text-red-600 p-2 text-center">
-                ${isAr ? 'ليبيـفليكس' : 'LIBYFLIX'}
-              </div>
-            `;
+            target.src = "https://i.top4top.io/p_3839qx2t30.png";
           }}
         />
 
         {/* Floating Category Tag */}
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-medium text-red-500 border border-zinc-850 backdrop-blur-sm">
-          <Tv className="h-3 w-3 text-red-500" />
-          <span>
-            {isAr ? (movie.category?.nameAr || movie.category?.name) : (movie.category?.nameEn || movie.category?.name)}
-          </span>
+        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
+          <div className="flex items-center gap-1.5 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-medium text-red-500 border border-zinc-850 backdrop-blur-sm">
+            <Tv className="h-3 w-3 text-red-500" />
+            <span>
+              {isAr ? (movie.category?.nameAr || movie.category?.name || (isMovie ? 'فيلم' : 'مسلسل')) : (movie.category?.nameEn || movie.category?.name || (isMovie ? 'Movie' : 'Series'))}
+            </span>
+          </div>
+          {movie.library === 'server2' && (
+            <div className="flex items-center gap-1.5 rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-black text-white border border-blue-500/50 backdrop-blur-sm shadow-lg">
+              <span>{isAr ? "سيرفر 2" : "Server 2"}</span>
+            </div>
+          )}
         </div>
 
         {/* Floating Rating Tag */}
@@ -78,7 +81,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
         {/* Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
           <button className="w-full rounded-xl bg-red-600 py-2.5 text-center text-xs font-black text-white hover:bg-red-500 transition-colors shadow-lg shadow-red-600/30 cursor-pointer">
-            {isAr ? "مشاهدة المسلسل" : "Watch Series"}
+            {isMovie ? (isAr ? "مشاهدة الفيلم" : "Watch Movie") : (isAr ? "مشاهدة المسلسل" : "Watch Series")}
           </button>
         </div>
       </div>
@@ -114,7 +117,14 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
           </span>
           {movie.duration && (
             <span className="text-zinc-400 bg-zinc-800/50 px-1.5 py-0.5 rounded text-[10px]">
-              {movie.duration} {isAr ? "حلقة" : "eps"}
+              {isMovie && !isNaN(Number(movie.duration)) ? (
+                <>
+                  {Math.floor(Number(movie.duration) / 60) > 0 ? `${Math.floor(Number(movie.duration) / 60)}${isAr ? 'س ' : 'h '}` : ''}
+                  {Number(movie.duration) % 60 > 0 ? `${Number(movie.duration) % 60}${isAr ? 'د' : 'm'}` : ''}
+                </>
+              ) : (
+                <>{movie.duration} {isAr ? "حلقة" : "eps"}</>
+              )}
             </span>
           )}
         </div>
