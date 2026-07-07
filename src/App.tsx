@@ -423,7 +423,7 @@ function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: {
             </form>
 
             <div className="mt-4 pt-6 border-t border-zinc-800/50 w-full flex flex-col items-center gap-3">
-              <span className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-black">Powered by Antigravity</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-black"></span>
               <div className="flex items-center gap-6">
                 <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Globe className="h-5 w-5" /></a>
                 <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Activity className="h-5 w-5" /></a>
