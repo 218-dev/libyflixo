@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import { Star, Eye, Calendar, Tv } from "lucide-react";
 import { Movie, Language } from "../types";
 
+import ImageWithFallback from "./ImageWithFallback";
+
 export interface MovieCardProps {
   movie: Movie;
   language: Language;
@@ -43,16 +45,14 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick }) => {
     >
       {/* Poster image container */}
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
-        <img
+        <ImageWithFallback
           src={posterSrc}
           alt={title}
           referrerPolicy="no-referrer"
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = "https://i.top4top.io/p_3839qx2t30.png";
-          }}
+          maxRetries={3}
+          fallbackSrc="https://i.top4top.io/p_3839qx2t30.png"
         />
 
         {/* Floating Category Tag */}
