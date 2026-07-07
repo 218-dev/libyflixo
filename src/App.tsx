@@ -124,6 +124,115 @@ const STATIC_CATEGORIES = [
   { id: "recently-added", nameAr: "المضافة حديثاً", nameEn: "Recently Added" },
 ];
 
+const SERVER1_MOVIE_CATEGORIES = [
+  { id: "2185cd2d-f379-4584-8caa-5884bced7150", nameAr: "أفلام عربية", nameEn: "Arabic Movies", icon: "🇸🇦", library: "server1" },
+  { id: "9ec354e5-4707-4161-9dab-b51f899b29d8", nameAr: "أفلام أجنبية", nameEn: "Foreign Movies", icon: "🌍", library: "server1" },
+  { id: "baa2d0f9-19ef-4317-adb6-5ef89ff1448e", nameAr: "أفلام هندية", nameEn: "Indian Movies", icon: "🇮🇳", library: "server1" },
+  { id: "3443bc74-5492-4abb-a8f1-26b15f6bb814", nameAr: "أفلام آسيوية", nameEn: "Asian Movies", icon: "🎎", library: "server1" },
+  { id: "69e9a8d2-2e75-415c-b5f2-cb87b2171f1c", nameAr: "رياضة", nameEn: "Sports", icon: "⚽", library: "server1" }
+];
+
+const SERVER1_SERIES_CATEGORIES = [
+  { id: "dd185bc6-1dfd-45c2-9189-13c47f672e5a", nameAr: "مسلسلات عربية", nameEn: "Arabic Series", icon: "🇸🇦", library: "server1" },
+  { id: "32d17563-00ee-4433-8b59-ddf969a51230", nameAr: "مسلسلات تركية", nameEn: "Turkish Series", icon: "🇹🇷", library: "server1" },
+  { id: "1bf63825-0b85-4ed8-8964-4cf2efb854d6", nameAr: "مسلسلات أجنبية", nameEn: "Foreign Series", icon: "🌍", library: "server1" },
+  { id: "0669005a-e8dd-4a00-8986-a905826eaca3", nameAr: "مسلسلات آسيوية", nameEn: "Asian Series", icon: "🎎", library: "server1" },
+  { id: "2660c480-65f2-4a30-a0c9-eda017ea660b", nameAr: "مسلسلات مدبلجة", nameEn: "Dubbed Series", icon: "🗣️", library: "server1" }
+];
+
+const SERVER1_GENRES: Record<string, { id: string; nameAr: string; nameEn: string; icon: string }[]> = {
+  "9ec354e5-4707-4161-9dab-b51f899b29d8": [
+    { id: "8d52c9b1-78d7-409f-be9c-c85858faca64", nameAr: "أكشن", nameEn: "Action", icon: "💥" },
+    { id: "31f47cc2-83fa-49a5-a9cf-f09bed8b9d6e", nameAr: "كوميديا", nameEn: "Comedy", icon: "🎭" },
+    { id: "e8e00aa8-8b3d-4ecd-ad6f-a116f06b5923", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "a3635dda-d79e-4f53-923a-bb3ac07e8cd2", nameAr: "رعب", nameEn: "Horror", icon: "👻" },
+    { id: "96866eb1-2329-43f0-881a-65e8534e2eac", nameAr: "إثارة", nameEn: "Thriller", icon: "😱" },
+    { id: "f22a2327-8a0f-4fdf-8c79-67c1a6223cc1", nameAr: "رومانسي", nameEn: "Romance", icon: "❤️" },
+    { id: "4c5550aa-4eee-4981-92e4-9788d08a0f63", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "b8c4d6fd-e916-44a7-83a5-73cdba8c17b6", nameAr: "مغامرة", nameEn: "Adventure", icon: "🏔️" },
+    { id: "9f179389-c0a2-4ad5-884b-c94465139a4e", nameAr: "خيال علمي", nameEn: "Science Fiction", icon: "🛸" },
+    { id: "daefd309-176d-4e75-a1d9-025558bc0079", nameAr: "موسيقي", nameEn: "Music", icon: "🎵" },
+    { id: "409f5762-8b43-4c96-8f3d-68197aa1b657", nameAr: "غموض", nameEn: "Mystery", icon: "🔍" },
+    { id: "3dd6c8b4-a839-49a9-b993-e9cea50ef699", nameAr: "تاريخي", nameEn: "History", icon: "📜" },
+    { id: "7d815264-a4bc-421a-a4c3-bff920866ac3", nameAr: "غربي", nameEn: "Western", icon: "🤠" },
+    { id: "40cc573c-d7cc-4af4-a811-b8cae6934452", nameAr: "عائلي", nameEn: "Family", icon: "👨‍👩‍👧‍👦" },
+    { id: "24292879-c3a5-4922-9642-4f7e8e8d9663", nameAr: "فانتازيا", nameEn: "Fantasy", icon: "🧙" },
+    { id: "65aad78c-8ee9-44c0-b9f6-12c5ec0f1a19", nameAr: "وثائقي", nameEn: "Documentary", icon: "🎥" },
+    { id: "7d7385fa-7743-4baf-9ae1-40e93b3e990b", nameAr: "أفلام تلفزيونية", nameEn: "TV Movie", icon: "📺" }
+  ],
+  "baa2d0f9-19ef-4317-adb6-5ef89ff1448e": [
+    { id: "85442355-2bc1-409e-828a-4a650c4f7c81", nameAr: "أكشن", nameEn: "Action", icon: "💥" },
+    { id: "c294f549-0332-490b-8c9f-49aa795b54f6", nameAr: "كوميديا", nameEn: "Comedy", icon: "🎭" },
+    { id: "8eb3c746-6cf9-41f4-a5d0-ed2154b375ff", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "749bc937-9f85-4685-a9fe-b92b7b722a46", nameAr: "رومانسي", nameEn: "Romance", icon: "❤️" },
+    { id: "8d14cf14-8441-4715-b42a-35226a95e6be", nameAr: "إثارة", nameEn: "Thriller", icon: "😱" },
+    { id: "2a704fc5-597d-4421-944d-d66368603f8c", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "4780c79d-f0f3-47fe-bd90-6798726521df", nameAr: "رعب", nameEn: "Horror", icon: "👻" },
+    { id: "f9ef9707-a08d-474a-aab9-e2c8031a8f22", nameAr: "مغامرة", nameEn: "Adventure", icon: "🏔️" },
+    { id: "25956dba-df73-4615-a306-ab53b38e20a3", nameAr: "تاريخي", nameEn: "History", icon: "📜" },
+    { id: "6afb7fd3-625f-488d-b474-fbf9c930841e", nameAr: "غموض", nameEn: "Mystery", icon: "🔍" },
+    { id: "99ed061b-1632-4fec-beb9-f78e353e3c42", nameAr: "فانتازيا", nameEn: "Fantasy", icon: "🧙" },
+    { id: "350c5e28-2e88-4141-bf09-3dc830ba46df", nameAr: "عائلي", nameEn: "Family", icon: "👨‍👩‍👧‍👦" }
+  ],
+  "3443bc74-5492-4abb-a8f1-26b15f6bb814": [
+    { id: "61f848f7-422e-4c77-9ed1-8bbd114e7df4", nameAr: "أكشن", nameEn: "Action", icon: "💥" },
+    { id: "90cbd416-7584-46c9-a7a8-0041c5bc0bad", nameAr: "كوميديا", nameEn: "Comedy", icon: "🎭" },
+    { id: "12dd7009-13e8-4dce-89ff-a0838a616420", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "2f2042c1-23e7-406c-8545-496c0f9bae42", nameAr: "رومانسي", nameEn: "Romance", icon: "❤️" },
+    { id: "748c52b5-b747-4d16-9083-a34f002b10f5", nameAr: "رعب", nameEn: "Horror", icon: "👻" },
+    { id: "a79010f7-6112-4dd4-b983-dc883927c3d3", nameAr: "إثارة", nameEn: "Thriller", icon: "😱" },
+    { id: "05eaddbd-1bac-4b55-bbb5-6fc3b0dc30c1", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "65eb4264-edf6-4e10-84cf-ac0ee6c4919d", nameAr: "مغامرة", nameEn: "Adventure", icon: "🏔️" },
+    { id: "22bf150a-85f0-41c8-8574-0fa2fa0e0e3c", nameAr: "غموض", nameEn: "Mystery", icon: "🔍" },
+    { id: "62172ad0-ccff-43df-a55d-2af68dd37f96", nameAr: "فانتازيا", nameEn: "Fantasy", icon: "🧙" },
+    { id: "8dd7197f-9fe5-4d4a-a0f0-79b79753c2c8", nameAr: "تاريخي", nameEn: "History", icon: "📜" },
+    { id: "07e0a5c5-9068-40a2-9aa9-8fb409241e97", nameAr: "خيال علمي", nameEn: "Science Fiction", icon: "🛸" }
+  ],
+  "2185cd2d-f379-4584-8caa-5884bced7150": [
+    { id: "9e85a8f5-7204-4081-abf1-55b6831f8d0f", nameAr: "أكشن", nameEn: "Action", icon: "💥" },
+    { id: "c1ef04e2-32d2-4f26-acd9-9eedd77f4fd8", nameAr: "كوميدي", nameEn: "Comedy", icon: "😂" },
+    { id: "67f55b85-6069-4e4b-a9f3-71d7561200f7", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "8115ce26-3932-4d50-833e-7568a448361d", nameAr: "رومنسية", nameEn: "Romance", icon: "❤️" },
+    { id: "7de289ea-1bcb-4f15-8516-a9406729c9da", nameAr: "إثارة", nameEn: "Thriller", icon: "😱" },
+    { id: "f0064e46-ede1-4669-ab36-aa86c827bee0", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "673a3885-86cd-403c-b186-8a3bdf31df47", nameAr: "رعب", nameEn: "Horror", icon: "👻" },
+    { id: "e3e557c4-de3b-4e94-80cf-fd7e521e1837", nameAr: "مغامرة", nameEn: "Adventure", icon: "🏔️" },
+    { id: "b3709836-b02c-450a-8d28-0f3d2eb3e6c2", nameAr: "فانتازيا", nameEn: "Fantasy", icon: "🧙" },
+    { id: "ea20e758-5621-4efe-9391-e52d57e98174", nameAr: "عائلي", nameEn: "Family", icon: "👨‍👩‍👧‍👦" }
+  ],
+  "0669005a-e8dd-4a00-8986-a905826eaca3": [
+    { id: "comedy:0669005a-e8dd-4a00-8986-a905826eaca3", nameAr: "كوميديا", nameEn: "Comedy", icon: "🎭" },
+    { id: "a5352e3c-a554-413d-a969-4926e08c980a", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "d9c31b77-524f-418d-a833-e50ec952f4cc", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "e01fb8f6-e639-479a-b392-9b2ec9c3ac37", nameAr: "خيال علمي وفانتازيا", nameEn: "Sci-Fi & Fantasy", icon: "🧙" }
+  ],
+  "2660c480-65f2-4a30-a0c9-eda017ea660b": [
+    { id: "41534be3-fdd6-4af0-8196-5c869de0d5ed", nameAr: "عائلي", nameEn: "Family", icon: "👨‍👩‍👧‍👦" },
+    { id: "58cd7505-7b4e-4e81-b504-44eac8434b44", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "6b56f4e1-8c81-4fd1-a534-cf6cb7cc3d1e", nameAr: "حركة ومغامرة", nameEn: "Action & Adventure", icon: "⚔️" },
+    { id: "e8ece59d-300c-492a-9e7d-4561d0299120", nameAr: "دراما (XUI)", nameEn: "Drama (XUI)", icon: "🎭" }
+  ],
+  "1bf63825-0b85-4ed8-8964-4cf2efb854d6": [
+    { id: "44b9f66f-c75a-4a18-a437-75ea1b69ec11", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "6c82b233-c942-44dd-b3ef-38e1362789ab", nameAr: "كوميديا", nameEn: "Comedy", icon: "🎭" },
+    { id: "6f41aa2a-3b31-464d-a88a-8952dcc55fce", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "b6e63f3d-856e-4140-b595-aaba33105fa2", nameAr: "خيال علمي وفانتازيا", nameEn: "Sci-Fi & Fantasy", icon: "🧙" },
+    { id: "c0cd5998-5972-471e-9b1f-55e1d9eb60a3", nameAr: "أكشن ومغامرة", nameEn: "Action & Adventure", icon: "⚔️" }
+  ],
+  "dd185bc6-1dfd-45c2-9189-13c47f672e5a": [
+    { id: "51dfe1e3-4471-410d-b82c-8a4b5438af13", nameAr: "غموض", nameEn: "Mystery", icon: "🔍" },
+    { id: "91af69ae-b34d-4f57-bf71-3bf42d51f203", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "c4a4948a-a30a-4a6e-95dc-5a142f2577d2", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "cf6cbb02-d268-43e6-ae12-e14e4135a569", nameAr: "أكشن ومغامرة", nameEn: "Action & Adventure", icon: "⚔️" }
+  ],
+  "32d17563-00ee-4433-8b59-ddf969a51230": [
+    { id: "7908785e-8d52-44ba-931d-1ada5cb85b24", nameAr: "دراما", nameEn: "Drama", icon: "🎭" },
+    { id: "7be9c77f-721f-46ab-aad3-8167fe5e99c6", nameAr: "كوميديا", nameEn: "Comedy", icon: "🎭" },
+    { id: "86590ab0-27f6-436a-b0d0-f995885f04ab", nameAr: "جريمة", nameEn: "Crime", icon: "🔪" },
+    { id: "c1ab0c13-f9a0-4c55-b583-e10a647dd012", nameAr: "حرب وسياسة", nameEn: "War & Politics", icon: "🎖️" }
+  ]
+};
+
 function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: { isAr: boolean, t: any, onActivate: (code: string) => void, error: string | null, isActivating: boolean }) {
   const [inputCode, setInputCode] = useState("");
   const [featuredContent, setFeaturedContent] = useState<any[]>([]);
@@ -696,6 +805,15 @@ export default function App() {
       return;
     }
 
+    if (currentServer === "server1") {
+      if (contentType === "movie") {
+        setDynamicCategories(SERVER1_MOVIE_CATEGORIES);
+      } else {
+        setDynamicCategories(SERVER1_SERIES_CATEGORIES);
+      }
+      return;
+    }
+
     const loadCategories = async () => {
       try {
         const endpoint = contentType === 'series' ? '/api/series' : '/api/movies';
@@ -740,6 +858,7 @@ export default function App() {
     } else {
       setActiveCategory("most-viewed");
     }
+    setGenre("");
     setPage(1);
   }, [contentType, currentServer]);
 
@@ -1220,7 +1339,7 @@ export default function App() {
   // Run query when category, search query, or page changes
   useEffect(() => {
     fetchMovies();
-  }, [activeCategory, page, contentType, searchQuery, currentServer]);
+  }, [activeCategory, page, contentType, searchQuery, currentServer, genre, sort, order, year]);
 
   // Handle Search triggers
   const handleSearchSubmit = (e: FormEvent) => {
@@ -1242,6 +1361,7 @@ export default function App() {
   // Trigger loading details of first category if category changes
   const selectCategory = (catId: string) => {
     setActiveCategory(catId);
+    setGenre("");
     setSearchQuery(""); // Clear search to prevent conflict
     setPage(1);
     setSort("newest");
@@ -1524,7 +1644,7 @@ export default function App() {
                 <span>{isAr ? cat.nameAr : cat.nameEn}</span>
               </button>
             ))}
-            {(currentServer === "server2" ? dynamicCategories : dynamicCategories.slice(0, 3)).map((cat) => (
+            {(currentServer === "server2" ? dynamicCategories : (currentServer === "server1" ? dynamicCategories : dynamicCategories.slice(0, 3))).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => selectCategory(cat.id)}
@@ -1534,10 +1654,11 @@ export default function App() {
                     : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
                 }`}
               >
+                {(cat as any).icon && <span className="text-base">{(cat as any).icon}</span>}
                 <span>{isAr ? cat.nameAr : cat.nameEn}</span>
               </button>
             ))}
-            {currentServer !== "server2" && (
+            {currentServer !== "server2" && currentServer !== "server1" && (
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white"
@@ -1546,6 +1667,49 @@ export default function App() {
               </button>
             )}
           </div>
+
+          {/* Server 1 Genre Selection Bar */}
+          {currentServer === "server1" && SERVER1_GENRES[activeCategory] && (
+            <div className="flex flex-col gap-2 mt-2">
+              <h4 className="text-xs font-semibold text-zinc-500 flex items-center gap-2 uppercase tracking-wider">
+                <span>🎭</span>
+                <span>{isAr ? "القسم الفرعي / النوع" : "Genre / Subcategory"}</span>
+              </h4>
+              <div className="flex flex-wrap gap-1.5 p-1.5 bg-zinc-900/30 border border-zinc-800/60 rounded-2xl">
+                <button
+                  onClick={() => {
+                    setGenre("");
+                    setPage(1);
+                  }}
+                  className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                    !genre
+                      ? "bg-red-600/20 text-red-400 border border-red-500/30 ring-1 ring-red-500/30"
+                      : "bg-transparent border border-transparent text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  <span>🌐</span>
+                  <span>{isAr ? "الكل" : "All"}</span>
+                </button>
+                {SERVER1_GENRES[activeCategory].map((g) => (
+                  <button
+                    key={g.id}
+                    onClick={() => {
+                      setGenre(g.id);
+                      setPage(1);
+                    }}
+                    className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                      genre === g.id
+                        ? "bg-red-600/20 text-red-400 border border-red-500/30 ring-1 ring-red-500/30"
+                        : "bg-transparent border border-transparent text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    {g.icon && <span className="text-sm">{g.icon}</span>}
+                    <span>{isAr ? g.nameAr : g.nameEn}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {isSidebarOpen && (
