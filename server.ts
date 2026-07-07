@@ -346,9 +346,10 @@ async function startServer() {
 
   app.get("/api/server2/movies", async (req, res) => {
     try {
-      const { page, section, sort, order, search, year, genre, tag } = req.query;
+      const { page, section, sort, order, search, year, genre, tag, limit } = req.query;
       const pageNum = page || 1;
-      const params: any = { page: pageNum, limit: 40, contentType: "movie" };
+      const limitNum = limit || 40;
+      const params: any = { page: pageNum, limit: limitNum, contentType: "movie" };
       
       if (section && !["all-movies", "most-viewed", "recently-added"].includes(section as string)) params.section = section;
       if (sort) params.sort = sort;
@@ -401,9 +402,10 @@ async function startServer() {
 
   app.get("/api/server2/tv-series", async (req, res) => {
     try {
-      const { page, section, sort, order, search, year, genre, tag } = req.query;
+      const { page, section, sort, order, search, year, genre, tag, limit } = req.query;
       const pageNum = page || 1;
-      const params: any = { page: pageNum, limit: 40, contentType: "series" };
+      const limitNum = limit || 40;
+      const params: any = { page: pageNum, limit: limitNum, contentType: "series" };
 
       if (section && !["all-series", "most-viewed", "recently-added"].includes(section as string)) params.section = section;
       if (sort) params.sort = sort;
