@@ -85,8 +85,8 @@ async function startServer() {
       if (id.startsWith("all-") || id === "most-viewed" || id === "recently-added") {
         return res.redirect(`/api/movies?${new URLSearchParams(req.query as any).toString()}`);
       }
-      const response = await axios.get(`${GOLIVE_API}/content/movies/category/${id}`, {
-        params: req.query,
+      const response = await axios.get(`${GOLIVE_API}/content/movies`, {
+        params: { ...req.query, category: id },
         timeout: 10000
       });
       res.json(response.data);
@@ -105,8 +105,8 @@ async function startServer() {
       if (id.startsWith("all-") || id === "most-viewed" || id === "recently-added") {
         return res.redirect(`/api/series?${new URLSearchParams(req.query as any).toString()}`);
       }
-      const response = await axios.get(`${GOLIVE_API}/content/series/category/${id}`, {
-        params: req.query,
+      const response = await axios.get(`${GOLIVE_API}/content/series`, {
+        params: { ...req.query, category: id },
         timeout: 10000
       });
       res.json(response.data);
