@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { 
   Search, Film, Flame, Globe, LayoutGrid, AlertCircle, RefreshCw, Loader2, Hourglass,
   ChevronLeft, ChevronRight, Play, Info, Trophy, Tv, Calendar, Clock, Activity, Zap,
-  Bell, Sparkles, X, ExternalLink, Eye, Star, Download, Volume2, VolumeX, Music, WifiOff
+  Bell, Sparkles, X, ExternalLink, Eye, Star, Download, Volume2, VolumeX, Music, WifiOff,
+  Heart, Hand
 } from "lucide-react";
 import { Movie, Language } from "./types";
 import MovieCard from "./components/MovieCard";
@@ -532,7 +533,6 @@ function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: {
             </form>
 
             <div className="mt-4 pt-6 border-t border-zinc-800/50 w-full flex flex-col items-center gap-3">
-              <span className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-black"></span>
               <div className="flex items-center gap-6">
                 <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Globe className="h-5 w-5" /></a>
                 <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Activity className="h-5 w-5" /></a>
@@ -635,6 +635,21 @@ const mappedDetail = (data: any, movie: any): any => {
   };
 };
 
+const getDeviceOS = (): "android" | "ios" | "other" => {
+  if (typeof window === "undefined" || !window.navigator) return "other";
+  const userAgent = window.navigator.userAgent || window.navigator.vendor || (window as any).opera || "";
+  if (/android/i.test(userAgent)) {
+    return "android";
+  }
+  if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+    return "ios";
+  }
+  if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform)) {
+    return "ios";
+  }
+  return "other";
+};
+
 export default function App() {
   const [language, setLanguage] = useState<Language>("ar");
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -648,7 +663,7 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [siteStats, setSiteStats] = useState({ movies: 0, series: 0 });
+  const [siteStats, setSiteStats] = useState<{ movies: number | null; series: number | null }>({ movies: null, series: null });
   
   // Selection
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
@@ -659,17 +674,122 @@ export default function App() {
   const [activeSeason, setActiveSeason] = useState(1);
   const [activeEpisode, setActiveEpisode] = useState(1);
 
+  // Continue Watching list state
+  const [continueWatching, setContinueWatching] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem("libyflix_continue_watching");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Favorites list state
+  const [favorites, setFavorites] = useState<Movie[]>(() => {
+    try {
+      const stored = localStorage.getItem("libyflix_favorites");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleFavorite = (movie: Movie) => {
+    setFavorites((prev) => {
+      const isAlreadyFav = prev.some((m) => m.id === movie.id);
+      let updated;
+      if (isAlreadyFav) {
+        updated = prev.filter((m) => m.id !== movie.id);
+      } else {
+        updated = [...prev, movie];
+      }
+      localStorage.setItem("libyflix_favorites", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const resumeItem = (item: any) => {
+    const movieToPlay = {
+      ...item.movie,
+      _resumeSeason: item.season,
+      _resumeEpisode: item.episode,
+    };
+    playMovie(movieToPlay);
+  };
+
   useEffect(() => {
     if (selectedMovie) {
-      setActiveSeason(1);
-      setActiveEpisode(1);
+      if ((selectedMovie as any)._resumeSeason !== undefined) {
+        setActiveSeason((selectedMovie as any)._resumeSeason);
+        setActiveEpisode((selectedMovie as any)._resumeEpisode || 1);
+        try {
+          delete (selectedMovie as any)._resumeSeason;
+          delete (selectedMovie as any)._resumeEpisode;
+        } catch (e) {}
+      } else {
+        setActiveSeason(1);
+        setActiveEpisode(1);
+      }
     }
   }, [selectedMovie]);
+
+  // Track continue watching updates
+  useEffect(() => {
+    if (!selectedMovie) return;
+    
+    const timer = setTimeout(() => {
+      setContinueWatching((prev) => {
+        const filtered = prev.filter((item) => item.movie.id !== selectedMovie.id);
+        const isSeries = selectedMovie.episodes && selectedMovie.episodes.length > 0;
+        const newItem = {
+          movie: selectedMovie,
+          updatedAt: Date.now(),
+          ...(isSeries ? { season: activeSeason, episode: activeEpisode } : {})
+        };
+        const updated = [newItem, ...filtered].slice(0, 15);
+        localStorage.setItem("libyflix_continue_watching", JSON.stringify(updated));
+        return updated;
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [selectedMovie, activeSeason, activeEpisode]);
 
   // Active Server State
   const [currentServer, setCurrentServer] = useState<"server1" | "server2">(() => {
     return (localStorage.getItem("libyflix_current_server") as "server1" | "server2") || "server1";
   });
+  const [showServer2AdBlockNotice, setShowServer2AdBlockNotice] = useState<boolean>(false);
+  const [adBlockCountdown, setAdBlockCountdown] = useState<number>(30);
+  const [dontShowAgain, setDontShowAgain] = useState<boolean>(false);
+
+  // Ad block notice countdown effect
+  useEffect(() => {
+    if (!showServer2AdBlockNotice) return;
+    
+    const interval = setInterval(() => {
+      setAdBlockCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setShowServer2AdBlockNotice(false);
+          if (dontShowAgain) {
+            localStorage.setItem("libyflix_hide_server2_notice", "true");
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showServer2AdBlockNotice, dontShowAgain]);
+
+  const handleCloseAdBlockNotice = () => {
+    setShowServer2AdBlockNotice(false);
+    if (dontShowAgain) {
+      localStorage.setItem("libyflix_hide_server2_notice", "true");
+    }
+  };
 
   const handleServerSwitch = (server: "server1" | "server2") => {
     setCurrentServer(server);
@@ -680,6 +800,10 @@ export default function App() {
     // Reset category to correct default when switching servers
     if (server === "server2") {
       setActiveCategory(contentType === "movie" ? "all-movies" : "all-series");
+      if (localStorage.getItem("libyflix_hide_server2_notice") !== "true") {
+        setAdBlockCountdown(30);
+        setShowServer2AdBlockNotice(true);
+      }
     } else {
       setActiveCategory("most-viewed");
     }
@@ -874,7 +998,7 @@ export default function App() {
   // Islamic Prayer Reminder State
   const [showReminder, setShowReminder] = useState(() => {
     if (typeof window !== "undefined") {
-      return sessionStorage.getItem("libyflix_prayer_reminder_acknowledged") !== "true";
+      return localStorage.getItem("libyflix_prayer_reminder_acknowledged") !== "true";
     }
     return true;
   });
@@ -1190,35 +1314,14 @@ export default function App() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // User requested specific stats: 1761 pages for movies, 568 pages for series
-        // Each page has 24 items
-        const moviePages = 1761;
-        const seriesPages = 568;
-        
-        setSiteStats({
-          movies: moviePages * 24,
-          series: seriesPages * 24
-        });
-        
-        // We still fetch to check connectivity but prioritize the requested numbers
-        const [moviesRes, seriesRes] = await Promise.all([
-          fetch("/api/movies?page=1&limit=1"),
-          fetch("/api/series?page=1&limit=1")
-        ]);
-        
-        if (moviesRes.ok && seriesRes.ok) {
-          const moviesData = await moviesRes.json();
-          const seriesData = await seriesRes.json();
-          
-          // If the API actually provides meta data, we could use it, 
-          // but the user explicitly asked for these specific page counts.
-          // Total = totalPages * 24 as requested
-          if (moviesData.meta?.totalPages > 1000) { // Only override if API seems to match user's massive scale
-             setSiteStats(prev => ({
-               ...prev,
-               movies: moviesData.meta.totalPages * 24,
-               series: seriesData.meta.totalPages * 24
-             }));
+        const res = await fetch("/api/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data.movies === "number" && typeof data.series === "number") {
+            setSiteStats({
+              movies: data.movies,
+              series: data.series
+            });
           }
         }
       } catch (e) {
@@ -1323,7 +1426,7 @@ export default function App() {
 
   const handleCloseReminder = () => {
     if (countdown === 0) {
-      sessionStorage.setItem("libyflix_prayer_reminder_acknowledged", "true");
+      localStorage.setItem("libyflix_prayer_reminder_acknowledged", "true");
       setShowReminder(false);
     }
   };
@@ -1338,8 +1441,17 @@ export default function App() {
 
   // Run query when category, search query, or page changes
   useEffect(() => {
-    fetchMovies();
-  }, [activeCategory, page, contentType, searchQuery, currentServer, genre, sort, order, year]);
+    if (activeCategory === "favorites") {
+      const filteredFavs = favorites.filter((movie) => {
+        const isMovie = movie.type === 'movie' || (movie.sources && movie.sources.length > 0) || (movie.category?.id?.includes('movie') || false) || (!movie.type && !movie.episodes);
+        return contentType === 'movie' ? isMovie : !isMovie;
+      });
+      setMovies(filteredFavs);
+      setTotalPages(1);
+    } else {
+      fetchMovies();
+    }
+  }, [activeCategory, page, contentType, searchQuery, currentServer, genre, sort, order, year, favorites]);
 
   // Handle Search triggers
   const handleSearchSubmit = (e: FormEvent) => {
@@ -1395,20 +1507,21 @@ export default function App() {
       <div className="absolute top-0 left-1/4 right-1/4 h-[500px] bg-red-600/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Navbar Header */}
-      <header className="sticky top-0 z-40 bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-900/80 px-4 py-3 md:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <header className="bg-zinc-950 border-b border-zinc-900/80 px-4 py-5 md:px-8 shadow-2xl">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-5">
           
-          {/* Logo & Toggles Group */}
-          <div className="flex flex-col items-center md:items-start gap-4">
+          {/* Row 1: Logo & Info */}
+          <div className="w-full flex items-center justify-between gap-4">
+            {/* Logo Group */}
             <div 
-              className="cursor-pointer group flex flex-col items-center md:items-start mb-1 select-none"
+              className="cursor-pointer group flex items-center gap-3 select-none"
               onClick={() => {
                 setSearchQuery("");
                 setActiveCategory("most-viewed");
                 setPage(1);
               }}
             >
-              <h1 className="text-3xl md:text-4xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-105">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-102 flex items-center gap-1">
                 {isAr ? (
                   <>
                     <span className="text-white">ليبيـ</span>
@@ -1421,45 +1534,21 @@ export default function App() {
                   </>
                 )}
               </h1>
-              <div className="h-1 w-full bg-gradient-to-r from-red-600 to-transparent rounded-full mt-0.5 opacity-50" />
             </div>
 
-            {/* Toggles Row */}
+            {/* License Remaining Days Countdown */}
             <div className="flex items-center gap-3">
-              {/* Content Type Toggle */}
-              <button
-                onClick={() => setContentType(contentType === "movie" ? "series" : "movie")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all duration-300 font-black text-[10px] uppercase tracking-tighter cursor-pointer shadow-md active:scale-95 ${
-                  contentType === "movie" 
-                    ? "bg-red-600 border-red-600 text-white" 
-                    : "bg-blue-600 border-blue-600 text-white"
-                }`}
-              >
-                {contentType === "movie" ? <Film className="h-3.5 w-3.5" /> : <Tv className="h-3.5 w-3.5" />}
-                <span>{contentType === "movie" ? (isAr ? "أفلام" : "Movies") : (isAr ? "مسلسلات" : "Series")}</span>
-              </button>
-
-              {/* Server Toggle */}
-              <button
-                onClick={() => handleServerSwitch(currentServer === "server1" ? "server2" : "server1")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 bg-zinc-900/50 border-zinc-800 transition-all duration-300 font-black text-[10px] uppercase tracking-tighter cursor-pointer shadow-md active:scale-95 text-zinc-300 hover:border-red-600/50 hover:text-white`}
-              >
-                <Globe className="h-3.5 w-3.5 text-red-600" />
-                <span>{currentServer === "server1" ? (isAr ? "السيرفر 1" : "Server 1") : (isAr ? "السيرفر 2" : "Server 2")}</span>
-              </button>
-
-              {/* Remaining Days */}
               {licenseInfo && licenseInfo.remainingDays !== undefined && (
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-amber-500/30 bg-amber-500/10 text-amber-500 font-black text-[10px] uppercase tracking-tighter shadow-md">
-                  <Hourglass className="h-3.5 w-3.5 animate-pulse" />
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider shadow-sm select-none">
+                  <Hourglass className="h-3 w-3 animate-pulse" />
                   <span>{licenseInfo.remainingDays} {isAr ? "أيام متبقية" : "Days Left"}</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Search bar & Language Toggle */}
-          <div className="flex items-center gap-4 w-full md:w-auto flex-1 max-w-2xl justify-end">
+          {/* Row 2: Search Box */}
+          <div className="w-full max-w-2xl">
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full group">
               <div className="relative flex-1">
                 <input
@@ -1467,7 +1556,7 @@ export default function App() {
                   placeholder={t.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-zinc-900/40 hover:bg-zinc-900 border-2 border-zinc-800/80 focus:border-red-600/60 rounded-2xl pl-12 pr-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-4 focus:ring-red-600/5 transition-all duration-300"
+                  className="w-full bg-zinc-900/40 hover:bg-zinc-900/80 border-2 border-zinc-800/80 focus:border-red-600/60 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-4 focus:ring-red-600/5 transition-all duration-300 shadow-inner"
                 />
                 <div className={`absolute inset-y-0 ${isAr ? "right-4" : "left-4"} flex items-center text-zinc-500 group-focus-within:text-red-500 transition-colors`}>
                   <Search className="h-4.5 w-4.5" />
@@ -1485,48 +1574,210 @@ export default function App() {
               </div>
               <button
                 type="submit"
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-2xl text-sm font-black transition-all shadow-lg shadow-red-600/20 active:scale-95"
+                className="bg-red-600 hover:bg-red-700 text-white px-7 py-3.5 rounded-2xl text-sm font-black transition-all shadow-lg shadow-red-600/20 active:scale-95 cursor-pointer"
               >
                 {isAr ? "بحث" : "Search"}
               </button>
             </form>
-
-            <button
-              onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
-              className="flex items-center gap-2 px-3 py-3 rounded-2xl bg-zinc-900/50 border-2 border-zinc-800 text-[10px] font-black text-zinc-400 hover:text-white hover:border-zinc-600 transition-all cursor-pointer backdrop-blur-md hidden sm:flex"
-            >
-              <Globe className="h-3.5 w-3.5 text-red-600" />
-              <span>{isAr ? "EN" : "AR"}</span>
-            </button>
           </div>
+
+          {/* Row 3: Server Switcher & Content Types (Toggles Row with Premium Custom Checkboxes) */}
+          <div className="w-full flex flex-wrap items-center justify-center gap-y-3 gap-x-5 bg-zinc-900/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-zinc-900/80 shadow-inner">
+            {/* Content Type Selector */}
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500 flex items-center gap-1 select-none">
+                <LayoutGrid className="h-3.5 w-3.5 text-red-600/50" />
+                <span>{isAr ? "القسم:" : "Section:"}</span>
+              </span>
+              
+              <div className="flex items-center gap-2">
+                {/* Movie Checkbox */}
+                <label className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 cursor-pointer select-none group ${
+                  contentType === "movie"
+                    ? "bg-red-950/25 border-red-500/40 text-white shadow-md shadow-red-950/20"
+                    : "bg-zinc-950/20 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:border-zinc-800"
+                }`}>
+                  <input
+                    type="checkbox"
+                    id="checkbox-movie"
+                    checked={contentType === "movie"}
+                    onChange={() => {
+                      if (contentType !== "movie") {
+                        setContentType("movie");
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border transition-all duration-300 ${
+                    contentType === "movie"
+                      ? "bg-red-600 border-red-500 text-white"
+                      : "bg-zinc-900 border-zinc-800 text-transparent group-hover:border-zinc-700"
+                  }`}>
+                    <svg className="w-2 h-2 stroke-[4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-xs font-bold tracking-tight">
+                    {isAr ? "أفلام" : "Movies"}
+                  </span>
+                </label>
+
+                {/* Series Checkbox */}
+                <label className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 cursor-pointer select-none group ${
+                  contentType === "series"
+                    ? "bg-red-950/25 border-red-500/40 text-white shadow-md shadow-red-950/20"
+                    : "bg-zinc-950/20 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:border-zinc-800"
+                }`}>
+                  <input
+                    type="checkbox"
+                    id="checkbox-series"
+                    checked={contentType === "series"}
+                    onChange={() => {
+                      if (contentType !== "series") {
+                        setContentType("series");
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border transition-all duration-300 ${
+                    contentType === "series"
+                      ? "bg-red-600 border-red-500 text-white"
+                      : "bg-zinc-900 border-zinc-800 text-transparent group-hover:border-zinc-700"
+                  }`}>
+                    <svg className="w-2 h-2 stroke-[4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-xs font-bold tracking-tight">
+                    {isAr ? "مسلسلات" : "Series"}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="hidden sm:block h-4 w-px bg-zinc-800" />
+
+            {/* Server Selector */}
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500 flex items-center gap-1 select-none">
+                <Globe className="h-3.5 w-3.5 text-red-600/50" />
+                <span>{isAr ? "السيرفر:" : "Server:"}</span>
+              </span>
+              
+              <div className="flex items-center gap-2">
+                {/* Server 1 Checkbox */}
+                <label className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 cursor-pointer select-none group ${
+                  currentServer === "server1"
+                    ? "bg-red-950/25 border-red-500/40 text-white shadow-md shadow-red-950/20"
+                    : "bg-zinc-950/20 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:border-zinc-800"
+                }`}>
+                  <input
+                    type="checkbox"
+                    id="checkbox-server1"
+                    checked={currentServer === "server1"}
+                    onChange={() => {
+                      if (currentServer !== "server1") {
+                        handleServerSwitch("server1");
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border transition-all duration-300 ${
+                    currentServer === "server1"
+                      ? "bg-red-600 border-red-500 text-white"
+                      : "bg-zinc-900 border-zinc-800 text-transparent group-hover:border-zinc-700"
+                  }`}>
+                    <svg className="w-2 h-2 stroke-[4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-xs font-bold tracking-tight">
+                    {isAr ? "سيرفر 1" : "Server 1"}
+                  </span>
+                </label>
+
+                {/* Server 2 Checkbox */}
+                <label className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 cursor-pointer select-none group ${
+                  currentServer === "server2"
+                    ? "bg-red-950/25 border-red-500/40 text-white shadow-md shadow-red-950/20"
+                    : "bg-zinc-950/20 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:border-zinc-800"
+                }`}>
+                  <input
+                    type="checkbox"
+                    id="checkbox-server2"
+                    checked={currentServer === "server2"}
+                    onChange={() => {
+                      if (currentServer !== "server2") {
+                        handleServerSwitch("server2");
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border transition-all duration-300 ${
+                    currentServer === "server2"
+                      ? "bg-red-600 border-red-500 text-white"
+                      : "bg-zinc-900 border-zinc-800 text-transparent group-hover:border-zinc-700"
+                  }`}>
+                    <svg className="w-2 h-2 stroke-[4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-xs font-bold tracking-tight">
+                    {isAr ? "سيرفر 2" : "Server 2"}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
         </div>
       </header>
 
-      {/* Sorting & Filtering Bar */}
-      <div className="sticky top-[86px] md:top-[74px] z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 px-4 py-2">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide text-xs">
-          <select 
-            value={sort} 
-            onChange={(e) => { setSort(e.target.value); setPage(1); }} 
-            className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1.5 text-zinc-300 focus:outline-none focus:border-red-600"
+      {/* Sticky Scrollable Categories Bar */}
+      <div className="sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 px-4 py-3 shadow-xl">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+          {/* Universal Favorites Pill */}
+          <button
+            onClick={() => selectCategory("favorites")}
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              activeCategory === "favorites" && !searchQuery
+                ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+            }`}
           >
-            <option value="newest">{isAr ? "الأحدث" : "Newest"}</option>
-            <option value="oldest">{isAr ? "الأقدم" : "Oldest"}</option>
-            <option value="trending">{isAr ? "الأكثر مشاهدة" : "Trending"}</option>
-            <option value="popular">{isAr ? "الأكثر شعبية" : "Popular"}</option>
-            <option value="rating">{isAr ? "التقييم" : "Rating"}</option>
-            <option value="title">{isAr ? "الاسم" : "Title"}</option>
-            <option value="recently_added">{isAr ? "المضافة حديثاً" : "Recently Added"}</option>
-          </select>
+            <Heart className={`h-3.5 w-3.5 ${activeCategory === "favorites" ? "fill-current animate-pulse text-white" : "text-red-500"}`} />
+            <span>{isAr ? "المفضلة" : "Favorites"}</span>
+          </button>
 
-          <select 
-            value={order} 
-            onChange={(e) => { setOrder(e.target.value as "asc" | "desc"); setPage(1); }} 
-            className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1.5 text-zinc-300 focus:outline-none focus:border-red-600"
-          >
-            <option value="asc">{isAr ? "تصاعدي" : "Asc"}</option>
-            <option value="desc">{isAr ? "تنازلي" : "Desc"}</option>
-          </select>
+          {currentServer !== "server2" && STATIC_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => selectCategory(cat.id)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                activeCategory === cat.id && !searchQuery
+                  ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+              }`}
+            >
+              <span>{isAr ? cat.nameAr : cat.nameEn}</span>
+            </button>
+          ))}
+
+          {(currentServer === "server2" ? dynamicCategories : (currentServer === "server1" ? dynamicCategories : dynamicCategories.slice(0, 3))).map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => selectCategory(cat.id)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                activeCategory === cat.id && !searchQuery
+                  ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+              }`}
+            >
+              {(cat as any).icon && <span className="text-sm">{(cat as any).icon}</span>}
+              <span>{isAr ? cat.nameAr : cat.nameEn}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -1624,121 +1875,118 @@ export default function App() {
       {/* Main Content Explorer Container */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 flex-grow w-full flex flex-col gap-8">
         
-        {/* Category Pills Navigation Panel */}
-        <section className="flex flex-col gap-3">
-          <h3 className="text-sm font-bold text-zinc-400 flex items-center gap-2 uppercase tracking-wider">
-            <LayoutGrid className="h-4 w-4 text-red-500" />
-            {t.exploreByCat}
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {currentServer !== "server2" && STATIC_CATEGORIES.map((cat) => (
+        {/* Continue Watching Section */}
+        {continueWatching.length > 0 && !searchQuery && (
+          <section className="flex flex-col gap-4 bg-zinc-950/25 border border-zinc-900 rounded-3xl p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-red-500 animate-pulse" />
+                <h3 className="text-base font-black text-white tracking-tight">
+                  {isAr ? "متابعة المشاهدة" : "Continue Watching"}
+                </h3>
+              </div>
               <button
-                key={cat.id}
-                onClick={() => selectCategory(cat.id)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 ${
-                  activeCategory === cat.id && !searchQuery
-                    ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                    : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
-                }`}
+                onClick={() => {
+                  setContinueWatching([]);
+                  localStorage.removeItem("libyflix_continue_watching");
+                }}
+                className="text-[10px] font-black uppercase tracking-wider text-zinc-500 hover:text-red-500 transition-colors bg-zinc-900/40 border border-zinc-850 px-2.5 py-1 rounded-lg cursor-pointer"
               >
-                <span>{isAr ? cat.nameAr : cat.nameEn}</span>
+                {isAr ? "مسح السجل" : "Clear History"}
               </button>
-            ))}
-            {(currentServer === "server2" ? dynamicCategories : (currentServer === "server1" ? dynamicCategories : dynamicCategories.slice(0, 3))).map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => selectCategory(cat.id)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 ${
-                  activeCategory === cat.id && !searchQuery
-                    ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                    : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
-                }`}
-              >
-                {(cat as any).icon && <span className="text-base">{(cat as any).icon}</span>}
-                <span>{isAr ? cat.nameAr : cat.nameEn}</span>
-              </button>
-            ))}
-            {currentServer !== "server2" && currentServer !== "server1" && (
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white"
-              >
-                {isAr ? "المزيد" : "More"}
-              </button>
-            )}
-          </div>
+            </div>
 
-          {/* Server 1 Genre Selection Bar */}
-          {currentServer === "server1" && SERVER1_GENRES[activeCategory] && (
-            <div className="flex flex-col gap-2 mt-2">
-              <h4 className="text-xs font-semibold text-zinc-500 flex items-center gap-2 uppercase tracking-wider">
-                <span>🎭</span>
-                <span>{isAr ? "القسم الفرعي / النوع" : "Genre / Subcategory"}</span>
-              </h4>
-              <div className="flex flex-wrap gap-1.5 p-1.5 bg-zinc-900/30 border border-zinc-800/60 rounded-2xl">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {continueWatching.slice(0, 6).map((item) => {
+                const title = isAr 
+                  ? (item.movie.titleAr || item.movie.title) 
+                  : (item.movie.titleEn || item.movie.title);
+                const isItemMovie = item.movie.type === 'movie' || (item.movie.sources && item.movie.sources.length > 0) || (item.movie.category?.id?.includes('movie') || false) || (!item.movie.type && !item.movie.episodes);
+
+                return (
+                  <div
+                    key={`${item.movie.id}-${item.updatedAt}`}
+                    onClick={() => resumeItem(item)}
+                    className="group relative bg-zinc-950/40 border border-zinc-900/80 rounded-2xl overflow-hidden cursor-pointer hover:border-red-500/50 hover:shadow-[0_12px_24px_-10px_rgba(239,68,68,0.25)] transition-all duration-300 flex flex-col h-full"
+                  >
+                    <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
+                      <ImageWithFallback
+                        src={item.movie.posterUrl || "https://i.top4top.io/p_3839qx2t30.png"}
+                        alt={title}
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        maxRetries={3}
+                        fallbackSrc="https://i.top4top.io/p_3839qx2t30.png"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <div className="p-3 rounded-full bg-red-600 text-white shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                          <Play className="h-4 w-4 fill-current ml-0.5" />
+                        </div>
+                      </div>
+                      {!isItemMovie && item.season && item.episode && (
+                        <div className="absolute bottom-2 left-2 right-2 bg-black/80 backdrop-blur-sm border border-zinc-800 px-2 py-1 rounded-xl text-[10px] text-zinc-300 font-bold flex justify-between items-center">
+                          <span>{isAr ? `الموسم ${item.season}` : `S${item.season}`}</span>
+                          <span className="text-red-500">{isAr ? `الحلقة ${item.episode}` : `E${item.episode}`}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3 flex flex-col flex-grow justify-between gap-1 bg-zinc-950/20">
+                      <h4 className="line-clamp-1 text-xs font-bold text-zinc-200 group-hover:text-red-500 transition-colors leading-tight">
+                        {title}
+                      </h4>
+                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1">
+                        <Clock className="h-2.5 w-2.5 text-zinc-600" />
+                        {new Date(item.updatedAt).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Server 1 Genre Selection Bar */}
+        {currentServer === "server1" && SERVER1_GENRES[activeCategory] && (
+          <section className="flex flex-col gap-2 bg-zinc-950/20 border border-zinc-900 rounded-2xl p-4">
+            <h4 className="text-xs font-semibold text-zinc-500 flex items-center gap-2 uppercase tracking-wider select-none">
+              <span>🎭</span>
+              <span>{isAr ? "القسم الفرعي / النوع" : "Genre / Subcategory"}</span>
+            </h4>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => {
+                  setGenre("");
+                  setPage(1);
+                }}
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                  !genre
+                    ? "bg-red-600/20 text-red-400 border border-red-500/30 ring-1 ring-red-500/30"
+                    : "bg-zinc-900/40 border border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                }`}
+              >
+                <span>🌐</span>
+                <span>{isAr ? "الكل" : "All"}</span>
+              </button>
+              {SERVER1_GENRES[activeCategory].map((g) => (
                 <button
+                  key={g.id}
                   onClick={() => {
-                    setGenre("");
+                    setGenre(g.id);
                     setPage(1);
                   }}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                    !genre
+                  className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                    genre === g.id
                       ? "bg-red-600/20 text-red-400 border border-red-500/30 ring-1 ring-red-500/30"
-                      : "bg-transparent border border-transparent text-zinc-400 hover:text-zinc-200"
+                      : "bg-zinc-900/40 border border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
                   }`}
                 >
-                  <span>🌐</span>
-                  <span>{isAr ? "الكل" : "All"}</span>
+                  {g.icon && <span className="text-sm">{g.icon}</span>}
+                  <span>{isAr ? g.nameAr : g.nameEn}</span>
                 </button>
-                {SERVER1_GENRES[activeCategory].map((g) => (
-                  <button
-                    key={g.id}
-                    onClick={() => {
-                      setGenre(g.id);
-                      setPage(1);
-                    }}
-                    className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                      genre === g.id
-                        ? "bg-red-600/20 text-red-400 border border-red-500/30 ring-1 ring-red-500/30"
-                        : "bg-transparent border border-transparent text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    {g.icon && <span className="text-sm">{g.icon}</span>}
-                    <span>{isAr ? g.nameAr : g.nameEn}</span>
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
-          )}
-        </section>
-
-        {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/90 z-50 p-4 flex items-center justify-center">
-            <div className="bg-zinc-950 p-6 rounded-2xl border border-zinc-800 max-w-md w-full max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-white">{isAr ? "جميع الأقسام" : "All Categories"}</h3>
-                <button onClick={() => setIsSidebarOpen(false)} className="text-zinc-400 hover:text-white">✕</button>
-              </div>
-              <div className="flex flex-col gap-2">
-                {dynamicCategories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => {
-                      selectCategory(cat.id);
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer text-left ${
-                      activeCategory === cat.id && !searchQuery
-                        ? "bg-red-600 text-white"
-                        : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300"
-                    }`}
-                  >
-                    {isAr ? cat.nameAr : cat.nameEn}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          </section>
         )}
 
         {/* Section Heading */}
@@ -1748,12 +1996,16 @@ export default function App() {
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 {searchQuery 
                   ? `${t.showingResults}: "${searchQuery}"`
-                  : (isAr 
-                      ? (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameAr 
-                      : (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameEn)}
+                  : activeCategory === "favorites"
+                    ? (isAr ? "المفضلة" : "Favorites")
+                    : (isAr 
+                        ? (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameAr 
+                        : (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameEn)}
               </h2>
               <p className="text-[11px] text-zinc-500 mt-1 font-medium">
-                {isAr ? `${movies.length} مسلسل متاح حالياً` : `${movies.length} series available currently`}
+                {isAr 
+                  ? `${movies.length} ${contentType === 'movie' ? 'فيلم متاح حالياً' : 'مسلسل متاح حالياً'}`
+                  : `${movies.length} ${contentType === 'movie' ? 'movies' : 'series'} available currently`}
               </p>
             </div>
           </div>
@@ -1827,6 +2079,8 @@ export default function App() {
                               movie={movie}
                               language={language}
                               onClick={() => playMovie(movie)}
+                              isFavorite={favorites.some((m) => m.id === movie.id)}
+                              onToggleFavorite={() => toggleFavorite(movie)}
                             />
                           ))}
                       </div>
@@ -1853,6 +2107,8 @@ export default function App() {
                               movie={movie}
                               language={language}
                               onClick={() => playMovie(movie)}
+                              isFavorite={favorites.some((m) => m.id === movie.id)}
+                              onToggleFavorite={() => toggleFavorite(movie)}
                             />
                           ))}
                       </div>
@@ -1869,6 +2125,8 @@ export default function App() {
                       movie={movie}
                       language={language}
                       onClick={() => playMovie(movie)}
+                      isFavorite={favorites.some((m) => m.id === movie.id)}
+                      onToggleFavorite={() => toggleFavorite(movie)}
                     />
                   ))}
                 </div>
@@ -1913,14 +2171,30 @@ export default function App() {
             <div className="flex flex-col items-center md:items-start">
               <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2">{isAr ? "إجمالي الأفلام" : "Total Movies"}</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white tracking-tighter">{(siteStats.movies).toLocaleString()}</span>
+                {siteStats.movies === null ? (
+                  <div className="flex items-center gap-1 py-2.5 h-8">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce"></span>
+                  </div>
+                ) : (
+                  <span className="text-2xl font-black text-white tracking-tighter">{(siteStats.movies).toLocaleString()}</span>
+                )}
                 <span className="text-[10px] text-zinc-600 font-bold uppercase">{isAr ? "محتوى" : "Titles"}</span>
               </div>
             </div>
             <div className="flex flex-col items-center md:items-start">
               <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2">{isAr ? "إجمالي المسلسلات" : "Total Series"}</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white tracking-tighter">{(siteStats.series).toLocaleString()}</span>
+                {siteStats.series === null ? (
+                  <div className="flex items-center gap-1 py-2.5 h-8">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce"></span>
+                  </div>
+                ) : (
+                  <span className="text-2xl font-black text-white tracking-tighter">{(siteStats.series).toLocaleString()}</span>
+                )}
                 <span className="text-[10px] text-zinc-600 font-bold uppercase">{isAr ? "محتوى" : "Series"}</span>
               </div>
             </div>
@@ -1983,7 +2257,15 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-6">
+              {/* Language Switcher Button in Footer */}
+              <button
+                onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 hover:text-white hover:border-zinc-700 transition-all cursor-pointer backdrop-blur-md"
+              >
+                <Globe className="h-3.5 w-3.5 text-red-600" />
+                <span>{isAr ? "EN" : "AR"}</span>
+              </button>
               <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-[0.2em] font-black text-[10px]">{isAr ? "سياسة الخصوصية" : "Privacy"}</a>
               <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-[0.2em] font-black text-[10px]">{isAr ? "الشروط" : "Terms"}</a>
               <a href="#" className="hover:text-red-500 transition-colors uppercase tracking-[0.2em] font-black text-[10px]">{isAr ? "الدعم" : "Support"}</a>
@@ -2414,54 +2696,140 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Activation Success Modal */}
+      {/* Server 2 Ad Blocker Notice Modal */}
       <AnimatePresence>
-        {showSuccessModal && (
+        {showServer2AdBlockNotice && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4"
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/85 backdrop-blur-xl p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-3xl p-6 relative overflow-hidden shadow-2xl flex flex-col items-center"
+              className="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl flex flex-col text-right"
+              dir="rtl"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 to-transparent pointer-events-none" />
-              <div className="h-20 w-20 bg-green-600/20 rounded-full flex items-center justify-center mb-6">
-                <Sparkles className="h-10 w-10 text-green-500" />
+              <div className="absolute top-4 left-4">
+                <button
+                  onClick={handleCloseAdBlockNotice}
+                  className="p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all duration-200"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <h2 className="text-2xl font-black text-white text-center mb-2">
-                {isAr ? "تم التفعيل بنجاح!" : "Activated Successfully!"}
-              </h2>
-              <p className="text-sm text-zinc-400 text-center mb-6">
-                {isAr ? "مرحباً بك في عالم الترفيه مع ليبيـفليكس" : "Welcome to the entertainment world of LibyFlix"}
-              </p>
-              
-              <div className="w-full bg-zinc-800/50 rounded-2xl p-4 mb-6 border border-zinc-700/50 flex flex-col gap-3">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-500 font-bold">{isAr ? "كود التفعيل" : "License Code"}</span>
-                  <span className="text-white font-mono">{licenseCode}</span>
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 bg-red-500/20 rounded-2xl flex items-center justify-center text-red-500 shrink-0 animate-pulse">
+                  <Hand className="h-6 w-6" />
                 </div>
-                {licenseInfo && (
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-zinc-500 font-bold">{isAr ? "الأيام المتبقية" : "Days Remaining"}</span>
-                    <span className="text-green-500 font-black">{licenseInfo.remainingDays} {isAr ? "يوم" : "Days"}</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-zinc-500 font-bold">{isAr ? "معرف الجهاز" : "Device ID"}</span>
-                  <span className="text-white font-mono">{getDeviceId().substring(0, 8)}</span>
+                <div>
+                  <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">تنويه هام للمشتركين</h2>
+                  <p className="text-xs text-zinc-500 mt-1">بخصوص إعلانات المشغل في السيرفر الثاني</p>
                 </div>
               </div>
 
+              <div className="bg-zinc-950/40 border border-zinc-850 rounded-2xl p-5 mb-4 text-xs md:text-sm text-zinc-300 leading-relaxed font-semibold whitespace-pre-line">
+                {`السلام عليكم ورحمة الله وبركاته،
+عزيزي المشترك،
+
+تم حذف جميع الإعلانات من المشغل قدر الإمكان. في حال ظهور أي إعلان داخل المشغل، يُرجى الضغط عليه في أي مكان وسيختفي فوراً. أما إذا فُتح إعلان في صفحة جديدة، ننصحك بتثبيت أحد تطبيقات حظر الإعلانات من متجر هاتفك.
+
+موقعي خالٍ تماماً من الإعلانات بنسبة 100%، وما قد يظهر أحياناً هو خارج عن إرادتنا، ويكون مصدره من مزود رابط البث.
+شكراً لتفهمك وصبرك. 🙏`}
+              </div>
+
+              {/* Clear checkbox to avoid showing again */}
+              <label className="flex items-center gap-3 cursor-pointer select-none group bg-zinc-950/50 hover:bg-zinc-950/80 p-3.5 rounded-2xl border border-zinc-800/80 hover:border-red-500/30 transition-all mb-5">
+                <input
+                  type="checkbox"
+                  checked={dontShowAgain}
+                  onChange={(e) => setDontShowAgain(e.target.checked)}
+                  className="w-5 h-5 rounded border-zinc-700 text-red-600 focus:ring-red-600/20 bg-zinc-800 accent-red-600 cursor-pointer"
+                />
+                <span className="text-xs font-black text-zinc-300 group-hover:text-white transition-colors">
+                  عدم عرض هذا التنويه مرة أخرى عند التبديل للسيرفر الثاني
+                </span>
+              </label>
+
+              <div className="border-t border-zinc-800/60 pt-5">
+                <span className="text-xs font-bold text-zinc-500 block mb-3">ننصحك باستخدام تطبيق AdGuard لتجربة خالية تماماً من الإعلانات المزعجة:</span>
+                
+                {(() => {
+                  const os = getDeviceOS();
+                  if (os === "android") {
+                    return (
+                      <div className="flex flex-col gap-3">
+                        <a
+                          href="https://play.google.com/store/apps/details?id=com.adguard.android.contentblocker"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-emerald-600/20 active:scale-95 flex items-center justify-center gap-2.5"
+                        >
+                          <Download className="h-5 w-5" />
+                          <span>تحميل AdGuard للأندرويد (Google Play)</span>
+                        </a>
+                      </div>
+                    );
+                  } else if (os === "ios") {
+                    return (
+                      <div className="flex flex-col gap-3">
+                        <a
+                          href="https://apps.apple.com/app/adguard-adblock-privacy/id1047223162"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-sky-600/20 active:scale-95 flex items-center justify-center gap-2.5"
+                        >
+                          <Download className="h-5 w-5" />
+                          <span>تحميل AdGuard للأيفون (App Store)</span>
+                        </a>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a
+                          href="https://play.google.com/store/apps/details?id=com.adguard.android.contentblocker"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-4 bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/30 hover:border-emerald-500 text-emerald-400 hover:text-white rounded-2xl font-black text-sm transition-all active:scale-95 flex items-center justify-center gap-2.5"
+                        >
+                          <Download className="h-5 w-5" />
+                          <span>تحميل للأندرويد (Android)</span>
+                        </a>
+                        <a
+                          href="https://apps.apple.com/app/adguard-adblock-privacy/id1047223162"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-4 bg-sky-600/20 hover:bg-sky-600 border border-sky-500/30 hover:border-sky-500 text-sky-400 hover:text-white rounded-2xl font-black text-sm transition-all active:scale-95 flex items-center justify-center gap-2.5"
+                        >
+                          <Download className="h-5 w-5" />
+                          <span>تحميل للأيفون (iOS)</span>
+                        </a>
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
+
+              {/* Countdown timer visual bar */}
+              <div className="flex items-center justify-between text-[11px] text-zinc-500 font-bold mt-6 mb-2 px-1">
+                <span>سيغلق التنويه تلقائياً خلال {adBlockCountdown} ثانية...</span>
+                <span className="h-1 flex-1 mx-4 bg-zinc-800 rounded-full overflow-hidden relative">
+                  <span 
+                    className="absolute inset-y-0 right-0 bg-red-600 transition-all duration-1000"
+                    style={{ width: `${(adBlockCountdown / 30) * 100}%` }}
+                  />
+                </span>
+              </div>
+
               <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-green-600/20 active:scale-95 flex items-center justify-center gap-2"
+                onClick={handleCloseAdBlockNotice}
+                className="w-full py-3.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-2xl font-black text-sm transition-all border border-zinc-700/50 active:scale-95 flex items-center justify-center"
               >
-                {isAr ? "اغلاق والبدء بالمشاهدة" : "Close & Start Watching"}
+                متابعة وإغلاق التنويه
               </button>
             </motion.div>
           </motion.div>

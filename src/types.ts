@@ -60,6 +60,16 @@ export interface Movie {
   category: MovieCategory;
   externalMetadata: ExternalMetadata | null;
   episodes?: Episode[];
+  slug?: string;
+  subject_id?: string;
 }
 
 export type Language = "ar" | "en";
+
+export interface ContinueWatchingItem {
+  movie: Movie;
+  season?: number;
+  episode?: number;
+  updatedAt: number;
+}
+
