@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import axios from "axios";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 
 async function startServer() {
@@ -332,6 +333,97 @@ async function startServer() {
       res.json(response.data);
     } catch (error: any) {
       res.status(500).json({ status: "error", message: "License check failed via proxy" });
+    }
+  });
+
+  app.get("/api/pwa/ios-config", async (req, res) => {
+    try {
+      const host = req.get("host");
+      const protocol = req.secure || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+      const appUrl = `${protocol}://${host}/`;
+      
+      let iconBase64 = "";
+      try {
+        const logoPath = path.join(process.cwd(), "public", "logo.png");
+        const distLogoPath = path.join(process.cwd(), "dist", "logo.png");
+        
+        if (fs.existsSync(logoPath)) {
+          const fileBuffer = fs.readFileSync(logoPath);
+          iconBase64 = fileBuffer.toString("base64");
+        } else if (fs.existsSync(distLogoPath)) {
+          const fileBuffer = fs.readFileSync(distLogoPath);
+          iconBase64 = fileBuffer.toString("base64");
+        } else {
+          const iconUrl = "https://libyflix.abdo.com.ly/logo.png";
+          const iconResponse = await axios.get(iconUrl, { responseType: "arraybuffer", timeout: 5000 });
+          iconBase64 = Buffer.from(iconResponse.data, "binary").toString("base64");
+        }
+      } catch (err: any) {
+        console.error("Failed to read logo.png or fetch fallback icon for mobileconfig:", err.message);
+      }
+
+      const mobileConfig = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>قم بتثبيت تطبيق ليبيفليكس على شاشتك الرئيسية للوصول السريع وبملء الشاشة.</string>
+	</dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>FullScreen</key>
+			<true/>
+			${iconBase64 ? `<key>Icon</key>\n\t\t\t<data>${iconBase64}</data>` : ""}
+			<key>IsRemovable</key>
+			<true/>
+			<key>Label</key>
+			<string>ليبيفليكس</string>
+			<key>PayloadDescription</key>
+			<string>بوابة الأفلام والمسلسلات التفاعلية - ليبيفليكس</string>
+			<key>PayloadDisplayName</key>
+			<string>ليبيفليكس - Libyflix</string>
+			<key>PayloadIdentifier</key>
+			<string>com.libyflix.webclip</string>
+			<key>PayloadType</key>
+			<string>com.apple.webclip.managed</string>
+			<key>PayloadUUID</key>
+			<string>9C6120D2-E407-4C41-86EF-BC9FAAA66A4E</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Precomposed</key>
+			<true/>
+			<key>URL</key>
+			<string>${appUrl}</string>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>تثبيت تطبيق ليبيفليكس التفاعلي للأفلام والمسلسلات</string>
+	<key>PayloadDisplayName</key>
+	<string>ليبيفليكس - Libyflix</string>
+	<key>PayloadIdentifier</key>
+	<string>com.libyflix.profile</string>
+	<key>PayloadOrganization</key>
+	<string>Libyflix</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>2D7C8A4D-8451-4E11-9A8E-CD0A77189F82</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>`;
+
+      res.setHeader("Content-Type", "application/x-apple-aspen-config");
+      res.setHeader("Content-Disposition", 'attachment; filename="libyflix.mobileconfig"');
+      res.send(mobileConfig);
+    } catch (error: any) {
+      console.error("Error generating mobileconfig:", error.message);
+      res.status(500).send("Error generating iOS configuration profile");
     }
   });
 
