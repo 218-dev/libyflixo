@@ -62,6 +62,7 @@ export interface Movie {
   episodes?: Episode[];
   slug?: string;
   subject_id?: string;
+  type?: "movie" | "series";
 }
 
 export type Language = "ar" | "en";

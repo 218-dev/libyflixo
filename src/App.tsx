@@ -4,7 +4,7 @@ import {
   Search, Film, Flame, Globe, LayoutGrid, AlertCircle, RefreshCw, Loader2, Hourglass,
   ChevronLeft, ChevronRight, Play, Info, Trophy, Tv, Calendar, Clock, Activity, Zap,
   Bell, Sparkles, X, ExternalLink, Eye, Star, Download, Volume2, VolumeX, Music, WifiOff,
-  Heart, Hand
+  Heart, Hand, Smartphone, Monitor
 } from "lucide-react";
 import { Movie, Language } from "./types";
 import MovieCard from "./components/MovieCard";
@@ -57,7 +57,43 @@ const translations = {
     upcomingBadge: "UPCOMING",
     finishedBadge: "FINISHED",
     channel: "Channel",
-    noMatches: "No matches scheduled for today."
+    noMatches: "No matches scheduled for today.",
+    recentSearches: "Recent Searches",
+    clearHistory: "Clear",
+    licenseTitle: "Activate Subscription",
+    licenseSubtitle: "Please enter your activation code to access all Libyflix features",
+    licensePlaceholder: "Enter activation code here...",
+    activate: "Activate Now",
+    activating: "Activating...",
+    licenseStatus: "Subscription Status",
+    active: "Active",
+    expired: "Expired",
+    remainingDays: "Days Remaining",
+    invalidCode: "Invalid or expired activation code",
+    errorCode: "An error occurred during activation. Please try again later.",
+    days: "Days",
+    installApp: "Install App",
+    pwaModalTitle: "Install Libyflix App",
+    pwaModalDesc: "Install Libyflix on your device for a full-screen, lightning-fast cinema experience on your Computer, Mobile, Tablet, or Smart TV.",
+    pwaNativeInstallBtn: "Install App on this Device",
+    pwaHowToTitle: "Installation Guide by Device",
+    pwaSafariInstructions: "Apple iOS / Safari (iPhone & iPad)",
+    pwaSafariStep1: "Tap the Share button in Safari's bottom navigation bar.",
+    pwaSafariStep2: "Scroll down and select 'Add to Home Screen'.",
+    pwaSafariStep3: "Tap 'Add' in the top right corner to complete installation.",
+    pwaAndroidInstructions: "Android / Chrome Mobile",
+    pwaAndroidStep1: "Tap the 3-dots menu in Chrome's top right corner.",
+    pwaAndroidStep2: "Select 'Install app' or 'Add to Home screen' from the menu.",
+    pwaTvInstructions: "Android TV / Smart TV",
+    pwaTvStep1: "Open this website using a browser on your TV (such as TV Bro, JioPages, or Chrome).",
+    pwaTvStep2: "Using your remote, navigate to browser options and select 'Install app' or 'Pin to Home Screen'.",
+    pwaDesktopInstructions: "Computer (PC / Mac)",
+    pwaDesktopStep1: "Click the small Install icon in Chrome's URL bar (top right).",
+    pwaDesktopStep2: "Alternatively, click the 3-dots browser menu and choose 'Install Libyflix'.",
+    close: "Close",
+    offlineTitle: "You are Offline",
+    offlineDesc: "It seems you are not connected to the internet right now. Please check your network connection and try again.",
+    offlineSavedHint: "Don't worry, Libyflix is installed as a PWA and is ready to load on your device as soon as you reconnect!"
   },
   ar: {
     title: "ليبيفليكس",
@@ -116,7 +152,31 @@ const translations = {
     remainingDays: "يوم متبقي",
     invalidCode: "كود التفعيل غير صحيح أو منتهي",
     errorCode: "حدث خطأ أثناء التفعيل، يرجى المحاولة لاحقاً",
-    days: "أيام"
+    days: "أيام",
+    recentSearches: "عمليات البحث الأخيرة",
+    clearHistory: "مسح الكل",
+    installApp: "تثبيت التطبيق",
+    pwaModalTitle: "تثبيت تطبيق ليبيفليكس",
+    pwaModalDesc: "قم بتثبيت التطبيق على جهازك للاستمتاع بتجربة مشاهدة سينمائية سريعة وبملء الشاشة على الكمبيوتر، الهاتف، الآيباد أو شاشات التلفزيون الذكية.",
+    pwaNativeInstallBtn: "تثبيت التطبيق على هذا الجهاز",
+    pwaHowToTitle: "دليل التثبيت حسب نوع الجهاز",
+    pwaSafariInstructions: "أجهزة آبل (آيفون وآيباد) - سفاري",
+    pwaSafariStep1: "اضغط على زر المشاركة (Share) في شريط سفاري السفلي.",
+    pwaSafariStep2: "قم بالتمرير لأسفل واضغط على خيار 'إضافة إلى الشاشة الرئيسية' (Add to Home Screen).",
+    pwaSafariStep3: "اضغط على 'إضافة' (Add) في أعلى اليمين لإتمام التثبيت.",
+    pwaAndroidInstructions: "أندرويد وهواتف كروم",
+    pwaAndroidStep1: "اضغط على زر الخيارات (3 نقاط) في أعلى يمين متصفح كروم.",
+    pwaAndroidStep2: "اختر 'تثبيت التطبيق' أو 'إضافة إلى الشاشة الرئيسية' من القائمة.",
+    pwaTvInstructions: "شاشات التلفزيون الذكية (Smart TV / Android TV)",
+    pwaTvStep1: "افتح الموقع في متصفح الشاشة (مثل متصفح TV Bro أو Chrome أو JioPages).",
+    pwaTvStep2: "باستخدام جهاز التحكم (الريموت)، افتح خيارات المتصفح واختر 'إضافة للصفحة الرئيسية' أو 'تثبيت'.",
+    pwaDesktopInstructions: "أجهزة الكمبيوتر واللابتوب",
+    pwaDesktopStep1: "انقر على أيقونة التثبيت الصغيرة في شريط العنوان (أعلى اليمين) لمتصفح كروم.",
+    pwaDesktopStep2: "أو افتح قائمة المتصفح (3 نقاط) واختر 'تثبيت ليبيفليكس' (Install Libyflix).",
+    close: "إغلاق",
+    offlineTitle: "أنت غير متصل بالإنترنت",
+    offlineDesc: "يبدو أنك غير متصل بالشبكة حالياً. يرجى التحقق من اتصال الإنترنت وجهاز التوجيه الخاص بك ثم المحاولة مجدداً.",
+    offlineSavedHint: "لا تقلق! تطبيق ليبيفليكس يدعم التشغيل دون إنترنت كـ PWA، وسيتم إعادة الاتصال تلقائياً بمجرد توفر الخدمة."
   }
 };
 
@@ -234,7 +294,7 @@ const SERVER1_GENRES: Record<string, { id: string; nameAr: string; nameEn: strin
   ]
 };
 
-function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: { isAr: boolean, t: any, onActivate: (code: string) => void, error: string | null, isActivating: boolean }) {
+function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating, onInstallPWA, isInstallable }: { isAr: boolean, t: any, onActivate: (code: string) => void, error: string | null, isActivating: boolean, onInstallPWA?: () => void, isInstallable?: boolean }) {
   const [inputCode, setInputCode] = useState("");
   const [featuredContent, setFeaturedContent] = useState<any[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -336,14 +396,14 @@ function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: {
   }, [featuredContent]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-zinc-950 p-4 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-start lg:justify-center bg-zinc-950 p-4 sm:p-6 md:p-8 overflow-y-auto">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(220,38,38,0.15),transparent_70%)]" />
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-red-600/10 rounded-full blur-[120px]" />
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
       </div>
 
-      <div className="w-full max-w-5xl flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative z-10 py-4 lg:py-12 max-h-screen overflow-hidden">
+      <div className="w-full max-w-5xl flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative z-10 py-6 lg:py-12">
         {/* Libyflix Content Slider (Left/Top side) */}
         <div className="w-full lg:w-1/2 space-y-3 lg:space-y-6 flex flex-col justify-center">
           <div className="flex items-center gap-3">
@@ -532,7 +592,18 @@ function LicenseActivationScreen({ isAr, t, onActivate, error, isActivating }: {
               </button>
             </form>
 
-            <div className="mt-4 pt-6 border-t border-zinc-800/50 w-full flex flex-col items-center gap-3">
+            <div className="mt-4 pt-6 border-t border-zinc-800/50 w-full flex flex-col items-center gap-4">
+              {isInstallable && onInstallPWA && (
+                <button
+                  type="button"
+                  onClick={onInstallPWA}
+                  className="w-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700/80 text-zinc-300 hover:text-white font-black py-3.5 px-4 rounded-2xl transition-all flex items-center justify-center gap-2.5 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-600/60"
+                >
+                  <Download className="h-4.5 w-4.5 text-red-500 group-hover:scale-115 transition-all duration-300" />
+                  <span className="text-xs uppercase tracking-wider">{t.installApp}</span>
+                </button>
+              )}
+
               <div className="flex items-center gap-6">
                 <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Globe className="h-5 w-5" /></a>
                 <a href="#" className="text-zinc-500 hover:text-red-500 transition-all transform hover:scale-110"><Activity className="h-5 w-5" /></a>
@@ -658,6 +729,50 @@ export default function App() {
   
   // Navigation & Search State
   const [searchQuery, setSearchQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem("libyflix_recent_searches");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const saveRecentSearch = (query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((item) => item !== trimmed);
+      const updated = [trimmed, ...filtered].slice(0, 8);
+      try {
+        localStorage.setItem("libyflix_recent_searches", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to save recent searches", e);
+      }
+      return updated;
+    });
+  };
+
+  const removeRecentSearch = (query: string) => {
+    setRecentSearches((prev) => {
+      const updated = prev.filter((item) => item !== query);
+      try {
+        localStorage.setItem("libyflix_recent_searches", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to save recent searches", e);
+      }
+      return updated;
+    });
+  };
+
+  const clearAllRecentSearches = () => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem("libyflix_recent_searches");
+    } catch (e) {
+      console.error("Failed to clear recent searches", e);
+    }
+  };
   const [activeCategory, setActiveCategory] = useState("most-viewed");
   const [contentType, setContentType] = useState<"movie" | "series">("series");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -665,8 +780,87 @@ export default function App() {
   const [totalPages, setTotalPages] = useState(1);
   const [siteStats, setSiteStats] = useState<{ movies: number | null; series: number | null }>({ movies: null, series: null });
   
+  // PWA Installer State & Listeners
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    return !isStandalone;
+  });
+  const [showPWAModal, setShowPWAModal] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Check again if already standalone
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+      if (isStandalone) {
+        setIsInstallable(false);
+        return;
+      }
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    const handleAppInstalled = () => {
+      console.log("[PWA] App installed successfully.");
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    };
+
+    const handleOnline = () => {
+      setIsOnline(true);
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Double check standalone state
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    if (isStandalone) {
+      console.log("[PWA] App is running in standalone mode.");
+      setIsInstallable(false);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] Installation user decision: ${outcome}`);
+        if (outcome === "accepted") {
+          setDeferredPrompt(null);
+        }
+      } catch (err) {
+        console.warn("[PWA] Prompt failed, showing instructions instead:", err);
+        setShowPWAModal(true);
+      }
+    } else {
+      setShowPWAModal(true);
+    }
+  };
+  
   // Selection
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const isSelectedMovieServer2 = selectedMovie 
+    ? ((selectedMovie as any).library === "server2" || (selectedMovie as any).subject_id || (selectedMovie as any).slug)
+    : false;
   const [activeSourceIndex, setActiveSourceIndex] = useState<number>(0);
   const [dynamicCategories, setDynamicCategories] = useState<{id: string, nameAr: string, nameEn: string, library: string}[]>([]);
 
@@ -995,6 +1189,15 @@ export default function App() {
   const [featuredMovies, setFeaturedMovies] = useState<Movie[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const filteredFeaturedMovies = featuredMovies.filter((movie) => {
+    const isS2 = (movie as any).library === "server2" || (movie as any).subject_id || (movie as any).slug;
+    return currentServer === "server2" ? isS2 : !isS2;
+  });
+
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [currentServer]);
+
   // Islamic Prayer Reminder State
   const [showReminder, setShowReminder] = useState(() => {
     if (typeof window !== "undefined") {
@@ -1018,9 +1221,9 @@ export default function App() {
   // Play movie in-page by setting the selectedMovie state
   const playMovie = async (movie: Movie) => {
     setLoading(true);
-    // Detect if this movie is from Server 2 (especially in global search results)
-    const isServer2Result = (movie as any).library === "server2" || (!(movie as any).library && (movie as any).category?.id === "search");
-    const targetServer = (movie as any).library === "server1" ? "server1" : (isServer2Result ? "server2" : currentServer);
+    // Determine the actual server of the movie
+    const isServer2 = (movie as any).library === "server2" || (movie as any).subject_id || (movie as any).slug;
+    const targetServer = isServer2 ? "server2" : "server1";
 
     try {
       if (targetServer === "server2") {
@@ -1032,30 +1235,34 @@ export default function App() {
           if (json.data) {
             // Map Server 2 detail to Movie schema
             const fullMovie = mappedDetail(json.data, movie);
-            setSelectedMovie(fullMovie as any);
-            if (isServer2Result) {
-              setCurrentServer("server2");
-            }
+            setSelectedMovie({ ...fullMovie, library: "server2" } as any);
+            setCurrentServer("server2");
             return;
           }
         }
         throw new Error("Failed to load details from Server 2");
       }
 
-      if (contentType === 'series') {
+      // Handle Server 1
+      const isSeries = movie.type === 'series' || (movie.episodes && movie.episodes.length > 0);
+      if (isSeries) {
         // Fetch details including episodes
         try {
           const response = await fetch(`/api/series/${movie.id}`);
           if (response.ok) {
              const fullMovie = await response.json();
-             setSelectedMovie(fullMovie);
+             const enriched = { ...fullMovie, library: "server1", type: "series" };
+             setSelectedMovie(enriched);
+             setCurrentServer("server1");
              return;
           }
         } catch (e) {
           console.error("Failed to fetch series details", e);
         }
       }
-      setSelectedMovie(movie);
+      const enrichedMovie = { ...movie, library: "server1", type: movie.type || "movie" };
+      setSelectedMovie(enrichedMovie);
+      setCurrentServer("server1");
     } catch (e) {
       console.error("Error loading play details:", e);
     } finally {
@@ -1113,12 +1320,12 @@ export default function App() {
         if (s1MoviesRes.ok) {
           const json = await s1MoviesRes.json();
           const items = Array.isArray(json) ? json : (json.data || []);
-          s1MoviesData = items.map((item: any) => ({ ...item, library: "server1" }));
+          s1MoviesData = items.map((item: any) => ({ ...item, library: "server1", type: "movie" }));
         }
         if (s1SeriesRes.ok) {
           const json = await s1SeriesRes.json();
           const items = Array.isArray(json) ? json : (json.data || []);
-          s1SeriesData = items.map((item: any) => ({ ...item, library: "server1" }));
+          s1SeriesData = items.map((item: any) => ({ ...item, library: "server1", type: "series" }));
         }
         if (s2SearchRes.ok) {
           const json = await s2SearchRes.json();
@@ -1288,15 +1495,25 @@ export default function App() {
       
       // Process responses (either dynamic paginated object, or straight array)
       if (Array.isArray(json)) {
-        setMovies(json);
+        const mappedS1 = json.map((item: any) => ({
+          ...item,
+          library: "server1",
+          type: item.type || contentType
+        }));
+        setMovies(mappedS1);
         setTotalPages(1);
         
         // Fallback to populate slider if empty on first load
-        if (activeCategory === "most-viewed" && json.length > 0 && !searchQuery && featuredMovies.length === 0) {
-          setFeaturedMovies(json.slice(0, 6));
+        if (activeCategory === "most-viewed" && mappedS1.length > 0 && !searchQuery && featuredMovies.length === 0) {
+          setFeaturedMovies(mappedS1.slice(0, 6));
         }
       } else if (json && Array.isArray(json.data)) {
-        setMovies(json.data);
+        const mappedS1 = json.data.map((item: any) => ({
+          ...item,
+          library: "server1",
+          type: item.type || contentType
+        }));
+        setMovies(mappedS1);
         setTotalPages(json.meta?.totalPages || 1);
       } else {
         setMovies([]);
@@ -1342,7 +1559,13 @@ export default function App() {
           const m1Res = await fetch('/api/movies/most-viewed?limit=4');
           if (m1Res.ok) {
             const data = await m1Res.json();
-            if (Array.isArray(data)) results.push(...data.slice(0, 3));
+            if (Array.isArray(data)) {
+              results.push(...data.slice(0, 3).map((item: any) => ({
+                ...item,
+                library: "server1",
+                type: "movie"
+              })));
+            }
           }
         } catch (e) { console.error("S1 Movies fetch error", e); }
 
@@ -1351,7 +1574,13 @@ export default function App() {
           const s1Res = await fetch('/api/series/most-viewed?limit=4');
           if (s1Res.ok) {
             const data = await s1Res.json();
-            if (Array.isArray(data)) results.push(...data.slice(0, 3));
+            if (Array.isArray(data)) {
+              results.push(...data.slice(0, 3).map((item: any) => ({
+                ...item,
+                library: "server1",
+                type: "series"
+              })));
+            }
           }
         } catch (e) { console.error("S1 Series fetch error", e); }
 
@@ -1399,12 +1628,12 @@ export default function App() {
 
   // Slide rotation timer (auto-transition every 6s)
   useEffect(() => {
-    if (featuredMovies.length <= 1) return;
+    if (filteredFeaturedMovies.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredMovies.length);
+      setCurrentSlide((prev) => (prev + 1) % filteredFeaturedMovies.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, [featuredMovies]);
+  }, [filteredFeaturedMovies]);
 
 
 
@@ -1456,6 +1685,9 @@ export default function App() {
   // Handle Search triggers
   const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (searchQuery.trim()) {
+      saveRecentSearch(searchQuery);
+    }
     setPage(1);
     fetchMovies();
   };
@@ -1485,14 +1717,200 @@ export default function App() {
       className="min-h-screen bg-zinc-950 text-zinc-100 selection:bg-red-600 selection:text-white font-sans flex flex-col"
     >
       <AnimatePresence>
+        {!isOnline && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-zinc-950 flex flex-col p-4 md:p-8 overflow-y-auto"
+          >
+            {/* Background subtle radial glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(239,68,68,0.08),transparent_70%)] pointer-events-none" />
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none animate-pulse" />
+
+            <div className="max-w-4xl w-full mx-auto flex-grow flex flex-col relative z-10">
+              {/* Header */}
+              <div className="flex items-center justify-between py-4 border-b border-zinc-900 mb-8 shrink-0">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl md:text-3xl font-black tracking-tighter flex items-center gap-1 select-none">
+                    {isAr ? (
+                      <>
+                        <span className="text-white">ليبيـ</span>
+                        <span className="text-red-600">فليكس</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-white">LIBY</span>
+                        <span className="text-red-600">FLIX</span>
+                      </>
+                    )}
+                  </h1>
+                  <span className="px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-400 font-bold tracking-widest uppercase">
+                    {isAr ? "أوفلاين" : "Offline"}
+                  </span>
+                </div>
+
+                {/* Language Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
+                  className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                >
+                  {isAr ? "English" : "العربية"}
+                </button>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="flex-grow flex flex-col items-center justify-center text-center max-w-xl mx-auto py-6 shrink-0">
+                {/* Pulsing Offline Graphic */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-red-600/20 rounded-full blur-2xl scale-150 animate-pulse" />
+                  <div className="relative p-6 bg-zinc-900/60 border border-zinc-800 rounded-full text-red-500 shadow-xl shadow-red-950/20">
+                    <WifiOff className="h-10 w-10 animate-bounce" />
+                  </div>
+                </div>
+
+                <h2 className="text-xl md:text-2xl font-black tracking-tight mb-3">
+                  {t.offlineTitle}
+                </h2>
+                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed mb-6">
+                  {t.offlineDesc}
+                </p>
+
+                {/* Buttons */}
+                <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRetrying(true);
+                      setTimeout(() => {
+                        setIsRetrying(false);
+                        setIsOnline(navigator.onLine);
+                      }, 1000);
+                    }}
+                    disabled={isRetrying}
+                    className="w-full sm:w-auto bg-red-600 hover:bg-red-700 disabled:bg-zinc-800 text-white font-black py-3 px-6 rounded-2xl shadow-lg shadow-red-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  >
+                    {isRetrying ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                    <span className="text-xs uppercase tracking-wider">{t.retry}</span>
+                  </button>
+
+                  {isInstallable && (
+                    <button
+                      type="button"
+                      onClick={handleInstallPWA}
+                      className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white font-black py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Download className="h-4 w-4 text-red-500" />
+                      <span className="text-xs uppercase tracking-wider">{t.installApp}</span>
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-[10px] text-zinc-500 mt-6 leading-normal">
+                  {t.offlineSavedHint}
+                </p>
+              </div>
+
+              {/* Offline Saved / Favorites section */}
+              {(favorites.length > 0 || continueWatching.length > 0) && (
+                <div className="mt-8 pt-8 border-t border-zinc-900 pb-8 shrink-0">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Sparkles className="h-4 w-4 text-amber-500" />
+                    <h3 className="text-sm font-black uppercase tracking-wider text-zinc-300">
+                      {isAr ? "محتواك المحفوظ محلياً" : "Your Locally Saved Content"}
+                    </h3>
+                  </div>
+
+                  {/* Grid showing Continue Watching or Favorites */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {/* Render Favorites */}
+                    {favorites.slice(0, 6).map((movie) => {
+                      const title = isAr ? (movie.titleAr || movie.title) : (movie.titleEn || movie.title);
+                      return (
+                        <div
+                          key={`offline-fav-${movie.id}`}
+                          className="group relative bg-zinc-900/40 border border-zinc-800/60 rounded-xl overflow-hidden p-2 flex flex-col h-full"
+                        >
+                          <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-950">
+                            <img
+                              src={movie.posterUrl || "https://i.top4top.io/p_3839qx2t30.png"}
+                              alt={title}
+                              referrerPolicy="no-referrer"
+                              className="h-full w-full object-cover opacity-80"
+                            />
+                            <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-sm border border-zinc-800 p-1.5 rounded-full">
+                              <Heart className="h-3 w-3 fill-red-500 text-red-500" />
+                            </div>
+                          </div>
+                          <div className="mt-2 text-center">
+                            <h4 className="line-clamp-1 text-[11px] font-bold text-zinc-300">
+                              {title}
+                            </h4>
+                            <span className="text-[9px] text-zinc-500 font-mono mt-0.5 block">
+                              {movie.year || "—"} | {isAr ? "مفضل" : "Favorite"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Render Continue Watching if no Favorites */}
+                    {favorites.length === 0 && continueWatching.slice(0, 6).map((item) => {
+                      const title = isAr ? (item.movie.titleAr || item.movie.title) : (item.movie.titleEn || item.movie.title);
+                      return (
+                        <div
+                          key={`offline-cw-${item.movie.id}`}
+                          className="group relative bg-zinc-900/40 border border-zinc-800/60 rounded-xl overflow-hidden p-2 flex flex-col h-full"
+                        >
+                          <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-950">
+                            <img
+                              src={item.movie.posterUrl || "https://i.top4top.io/p_3839qx2t30.png"}
+                              alt={title}
+                              referrerPolicy="no-referrer"
+                              className="h-full w-full object-cover opacity-80"
+                            />
+                            {item.season && item.episode && (
+                              <div className="absolute bottom-1.5 left-1.5 right-1.5 bg-black/80 backdrop-blur-sm border border-zinc-800 px-1.5 py-0.5 rounded-lg text-[8px] text-zinc-400 font-bold flex justify-between">
+                                <span>S{item.season}</span>
+                                <span className="text-red-500">E{item.episode}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-center">
+                            <h4 className="line-clamp-1 text-[11px] font-bold text-zinc-300">
+                              {title}
+                            </h4>
+                            <span className="text-[9px] text-zinc-500 font-mono mt-0.5 block">
+                              {isAr ? "متابعة" : "Resume"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {!isLicenseActive && !isCheckingLicense && (
           <LicenseActivationScreen 
-          isAr={isAr} 
-          t={t} 
-          onActivate={handleActivate}
-          error={licenseError}
-          isActivating={isActivating}
-        />
+            isAr={isAr} 
+            t={t} 
+            onActivate={handleActivate}
+            error={licenseError}
+            isActivating={isActivating}
+            onInstallPWA={handleInstallPWA}
+            isInstallable={isInstallable}
+          />
         )}
       </AnimatePresence>
 
@@ -1536,8 +1954,19 @@ export default function App() {
               </h1>
             </div>
 
-            {/* License Remaining Days Countdown */}
-            <div className="flex items-center gap-3">
+            {/* License Remaining Days Countdown & PWA Install */}
+            <div className="flex items-center gap-2 md:gap-3">
+              {isInstallable && (
+                <button
+                  type="button"
+                  onClick={handleInstallPWA}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 hover:text-white text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <Download className="h-3 w-3 text-red-500" />
+                  <span>{t.installApp}</span>
+                </button>
+              )}
+
               {licenseInfo && licenseInfo.remainingDays !== undefined && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-wider shadow-sm select-none">
                   <Hourglass className="h-3 w-3 animate-pulse" />
@@ -1556,9 +1985,9 @@ export default function App() {
                   placeholder={t.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-zinc-900/40 hover:bg-zinc-900/80 border-2 border-zinc-800/80 focus:border-red-600/60 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-4 focus:ring-red-600/5 transition-all duration-300 shadow-inner"
+                  className="w-full bg-zinc-900/40 hover:bg-zinc-900/80 border-2 border-zinc-800/80 focus:border-red-600/60 rounded-2xl pl-12 pr-12 py-3.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-4 focus:ring-red-600/5 transition-all duration-300 shadow-inner"
                 />
-                <div className={`absolute inset-y-0 ${isAr ? "right-4" : "left-4"} flex items-center text-zinc-500 group-focus-within:text-red-500 transition-colors`}>
+                <div className="absolute inset-y-0 left-4 flex items-center text-zinc-500 group-focus-within:text-red-500 transition-colors">
                   <Search className="h-4.5 w-4.5" />
                 </div>
                 
@@ -1566,7 +1995,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={clearSearch}
-                    className={`absolute inset-y-0 ${isAr ? "left-4" : "right-4"} text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest`}
+                    className="absolute inset-y-0 right-4 text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest"
                   >
                     {isAr ? "مسح" : "Clear"}
                   </button>
@@ -1579,6 +2008,55 @@ export default function App() {
                 {isAr ? "بحث" : "Search"}
               </button>
             </form>
+
+            {recentSearches.length > 0 && (
+              <div className="w-full mt-3 px-1 flex flex-col gap-2 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-400 select-none">
+                    <Clock className="h-3.5 w-3.5 text-zinc-500" />
+                    <span className="font-bold tracking-tight">{t.recentSearches}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={clearAllRecentSearches}
+                    className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors cursor-pointer"
+                  >
+                    {t.clearHistory}
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2 py-0.5">
+                  {recentSearches.map((query, idx) => (
+                    <div
+                      key={`${query}-${idx}`}
+                      className="group/chip flex items-center bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800/60 hover:border-zinc-700/80 rounded-xl transition-all duration-200 overflow-hidden"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(query);
+                          setPage(1);
+                        }}
+                        className={`px-3 py-1.5 text-xs text-zinc-300 hover:text-white font-medium transition-colors cursor-pointer truncate max-w-[150px] ${
+                          isAr ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {query}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeRecentSearch(query)}
+                        className={`p-1.5 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-all border-zinc-800/50 ${
+                          isAr ? "border-r pr-2 pl-2" : "border-l pl-2 pr-2"
+                        }`}
+                        aria-label={`Remove ${query}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Row 3: Server Switcher & Content Types (Toggles Row with Premium Custom Checkboxes) */}
@@ -1740,10 +2218,10 @@ export default function App() {
           {/* Universal Favorites Pill */}
           <button
             onClick={() => selectCategory("favorites")}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
               activeCategory === "favorites" && !searchQuery
                 ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+                : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
             }`}
           >
             <Heart className={`h-3.5 w-3.5 ${activeCategory === "favorites" ? "fill-current animate-pulse text-white" : "text-red-500"}`} />
@@ -1754,10 +2232,10 @@ export default function App() {
             <button
               key={cat.id}
               onClick={() => selectCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                 activeCategory === cat.id && !searchQuery
                   ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
               }`}
             >
               <span>{isAr ? cat.nameAr : cat.nameEn}</span>
@@ -1768,10 +2246,10 @@ export default function App() {
             <button
               key={cat.id}
               onClick={() => selectCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
                 activeCategory === cat.id && !searchQuery
                   ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white"
+                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
               }`}
             >
               {(cat as any).icon && <span className="text-sm">{(cat as any).icon}</span>}
@@ -1782,10 +2260,10 @@ export default function App() {
       </div>
 
       {/* Featured Movies Slider (Only shown when not searching and on home category) */}
-      {!loading && !error && (activeCategory === "most-viewed" || activeCategory === "all-movies" || activeCategory === "all-series") && !searchQuery && featuredMovies.length > 0 && (
+      {!loading && !error && (activeCategory === "most-viewed" || activeCategory === "all-movies" || activeCategory === "all-series") && !searchQuery && filteredFeaturedMovies.length > 0 && (
         <section className="relative w-full h-[400px] sm:h-[480px] md:h-[550px] bg-black overflow-hidden border-b border-zinc-900">
           <AnimatePresence mode="wait">
-            {featuredMovies.map((movie, idx) => {
+            {filteredFeaturedMovies.map((movie, idx) => {
               if (idx !== currentSlide) return null;
               return (
                 <motion.div
@@ -2300,7 +2778,7 @@ export default function App() {
               </button>
 
               {/* Interactive Inline Player for Server 2 */}
-              {currentServer === "server2" && (
+              {isSelectedMovieServer2 && (
                 <div className="w-full bg-black border-b border-zinc-800/80 overflow-hidden relative shadow-2xl">
                   {/* Subtle decorative glow */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-gradient-to-r from-transparent via-red-600/60 to-transparent blur-sm z-10 pointer-events-none" />
@@ -2416,7 +2894,7 @@ export default function App() {
                                 ? ep.title.replace(/episode/i, "الحلقة") 
                                 : ep.title}
                             </span>
-                            {currentServer === "server2" ? (
+                            {isSelectedMovieServer2 ? (
                               <button
                                 onClick={() => {
                                   setActiveSeason(ep.seasonNumber);
@@ -2480,7 +2958,7 @@ export default function App() {
                   {selectedMovie.sources && selectedMovie.sources.length > 0 ? (
                     <div className="pt-4 border-t border-zinc-800/60 flex flex-col sm:flex-row sm:items-center gap-3">
                       <div className="flex flex-wrap gap-2 shrink-0 w-full sm:w-auto">
-                        {currentServer !== "server2" ? (
+                        {!isSelectedMovieServer2 ? (
                           <>
                             <p className="text-xs font-bold text-zinc-400 leading-relaxed flex-1 sm:hidden">
                               {isAr 
@@ -2505,7 +2983,7 @@ export default function App() {
                         ) : null}
                       </div>
                     </div>
-                  ) : (!selectedMovie.episodes || selectedMovie.episodes.length === 0) && currentServer !== "server2" && (
+                  ) : (!selectedMovie.episodes || selectedMovie.episodes.length === 0) && !isSelectedMovieServer2 && (
                     <div className="pt-4 border-t border-zinc-800/60">
                       <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-3">
                         <WifiOff className="h-8 w-8 text-red-500 mb-1" />
@@ -2830,6 +3308,131 @@ export default function App() {
                 className="w-full py-3.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-2xl font-black text-sm transition-all border border-zinc-700/50 active:scale-95 flex items-center justify-center"
               >
                 متابعة وإغلاق التنويه
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* PWA Install Instructions Modal */}
+        {showPWAModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl overflow-hidden text-zinc-100 flex flex-col"
+            >
+              {/* Background gradient decor */}
+              <div className="absolute top-0 right-0 w-48 h-48 bg-red-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-red-600/10 rounded-xl border border-red-500/20 text-red-500">
+                    <Download className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black tracking-tight">{t.pwaModalTitle}</h3>
+                    <p className="text-xs text-zinc-400 mt-0.5">{isAr ? "دليل التثبيت لجميع الأجهزة" : "Installation guide for all systems"}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPWAModal(false)}
+                  className="p-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/60 hover:border-zinc-700 hover:text-white transition-all cursor-pointer"
+                >
+                  <X className="h-4.5 w-4.5" />
+                </button>
+              </div>
+
+              {/* Description */}
+              <p className="text-zinc-300 text-xs md:text-sm leading-relaxed mb-6 bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/60">
+                {t.pwaModalDesc}
+              </p>
+
+              {/* Native Prompt Button if available */}
+              {deferredPrompt && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await handleInstallPWA();
+                    setShowPWAModal(false);
+                  }}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-xl shadow-red-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2.5 mb-6 cursor-pointer"
+                >
+                  <Sparkles className="h-4.5 w-4.5 animate-pulse" />
+                  <span>{t.pwaNativeInstallBtn}</span>
+                </button>
+              )}
+
+              {/* Dynamic device-specific instructions tabs */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-black tracking-widest text-zinc-400 uppercase select-none">{t.pwaHowToTitle}</h4>
+                
+                <div className="space-y-3.5 max-h-[280px] overflow-y-auto pr-1">
+                  {/* Apple / Safari */}
+                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
+                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                      <Smartphone className="h-4 w-4 text-sky-500" />
+                      <span>{t.pwaSafariInstructions}</span>
+                    </div>
+                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                      <li>{t.pwaSafariStep1}</li>
+                      <li>{t.pwaSafariStep2}</li>
+                      <li>{t.pwaSafariStep3}</li>
+                    </ol>
+                  </div>
+
+                  {/* Android / Chrome */}
+                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
+                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                      <Smartphone className="h-4 w-4 text-emerald-500" />
+                      <span>{t.pwaAndroidInstructions}</span>
+                    </div>
+                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                      <li>{t.pwaAndroidStep1}</li>
+                      <li>{t.pwaAndroidStep2}</li>
+                    </ol>
+                  </div>
+
+                  {/* Computer (PC/Mac) */}
+                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
+                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                      <Monitor className="h-4 w-4 text-purple-500" />
+                      <span>{t.pwaDesktopInstructions}</span>
+                    </div>
+                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                      <li>{t.pwaDesktopStep1}</li>
+                      <li>{t.pwaDesktopStep2}</li>
+                    </ol>
+                  </div>
+
+                  {/* Android TV / Smart TV */}
+                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
+                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                      <Tv className="h-4 w-4 text-red-500" />
+                      <span>{t.pwaTvInstructions}</span>
+                    </div>
+                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                      <li>{t.pwaTvStep1}</li>
+                      <li>{t.pwaTvStep2}</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              {/* Close Footer button */}
+              <button
+                type="button"
+                onClick={() => setShowPWAModal(false)}
+                className="w-full mt-6 py-3 bg-zinc-800 hover:bg-zinc-700/80 text-zinc-300 hover:text-white rounded-2xl text-xs font-bold transition-all border border-zinc-700/30 cursor-pointer"
+              >
+                {t.close}
               </button>
             </motion.div>
           </motion.div>
