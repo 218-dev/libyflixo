@@ -90,6 +90,12 @@ const translations = {
     pwaDesktopInstructions: "Computer (PC / Mac)",
     pwaDesktopStep1: "Click the small Install icon in Chrome's URL bar (top right).",
     pwaDesktopStep2: "Alternatively, click the 3-dots browser menu and choose 'Install Libyflix'.",
+    pwaIosProfileBtn: "Download Instant Apple Profile (One-Click)",
+    pwaIosProfileLabel: "OR: Direct iOS Installation (Highly Recommended)",
+    pwaRedirectTitle: "Open in App?",
+    pwaRedirectDesc: "We tried to open the Libyflix PWA app. If you don't have it installed, you can install it now for an immersive, full-screen experience, or continue using your web browser.",
+    pwaRedirectInstall: "Install App",
+    pwaRedirectContinue: "Continue in Browser",
     close: "Close",
     offlineTitle: "You are Offline",
     offlineDesc: "It seems you are not connected to the internet right now. Please check your network connection and try again.",
@@ -173,6 +179,12 @@ const translations = {
     pwaDesktopInstructions: "أجهزة الكمبيوتر واللابتوب",
     pwaDesktopStep1: "انقر على أيقونة التثبيت الصغيرة في شريط العنوان (أعلى اليمين) لمتصفح كروم.",
     pwaDesktopStep2: "أو افتح قائمة المتصفح (3 نقاط) واختر 'تثبيت ليبيفليكس' (Install Libyflix).",
+    pwaIosProfileBtn: "تنزيل ملف التعريف الفوري (تثبيت بنقرة واحدة)",
+    pwaIosProfileLabel: "أو: تثبيت مباشر للأيفون (موصى به للغاية)",
+    pwaRedirectTitle: "فتح في التطبيق؟",
+    pwaRedirectDesc: "حاولنا فتح تطبيق ليبيفليكس المستقل. إذا لم يكن التطبيق ثبتاً بعد، يمكنك تثبيته الآن للحصول على تجربة كاملة وبملء الشاشة، أو يمكنك متابعة المشاهدة من المتصفح.",
+    pwaRedirectInstall: "تثبيت التطبيق",
+    pwaRedirectContinue: "المتابعة من المتصفح",
     close: "إغلاق",
     offlineTitle: "أنت غير متصل بالإنترنت",
     offlineDesc: "يبدو أنك غير متصل بالشبكة حالياً. يرجى التحقق من اتصال الإنترنت وجهاز التوجيه الخاص بك ثم المحاولة مجدداً.",
@@ -781,6 +793,21 @@ export default function App() {
   const [siteStats, setSiteStats] = useState<{ movies: number | null; series: number | null }>({ movies: null, series: null });
   
   // PWA Installer State & Listeners
+  const detectOS = (): "ios" | "android" | "desktop" | "tv" => {
+    if (typeof window === "undefined") return "desktop";
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes("smart-tv") || ua.includes("smarttv") || ua.includes("googletv") || ua.includes("appletv") || ua.includes("tizen") || ua.includes("webos") || ua.includes("firetv") || ua.includes("tv")) {
+      return "tv";
+    }
+    if (/ipad|iphone|ipod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+      return "ios";
+    }
+    if (ua.includes("android")) {
+      return "android";
+    }
+    return "desktop";
+  };
+
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -788,6 +815,8 @@ export default function App() {
     return !isStandalone;
   });
   const [showPWAModal, setShowPWAModal] = useState(false);
+  const [showPwaRedirectPrompt, setShowPwaRedirectPrompt] = useState(false);
+  const [pwaActiveTab, setPwaActiveTab] = useState<"ios" | "android" | "desktop" | "tv">("desktop");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isRetrying, setIsRetrying] = useState(false);
 
@@ -828,6 +857,28 @@ export default function App() {
     if (isStandalone) {
       console.log("[PWA] App is running in standalone mode.");
       setIsInstallable(false);
+    } else {
+      // Auto detect OS for default PWA active tab
+      const os = detectOS();
+      setPwaActiveTab(os);
+
+      // Check if we have already shown the prompt in this session
+      const promptShown = sessionStorage.getItem("libyflix_pwa_prompt_shown");
+      if (!promptShown) {
+        console.log("[PWA Check] Trying to open application standalone. If fail, show option.");
+        // Try to trigger custom scheme or just check standalone state after delay
+        const timer = setTimeout(() => {
+          setShowPwaRedirectPrompt(true);
+        }, 1500);
+        
+        return () => {
+          clearTimeout(timer);
+          window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+          window.removeEventListener("appinstalled", handleAppInstalled);
+          window.removeEventListener("online", handleOnline);
+          window.removeEventListener("offline", handleOffline);
+        };
+      }
     }
 
     return () => {
@@ -3370,59 +3421,150 @@ export default function App() {
                 </button>
               )}
 
+              {/* Smart OS Tab Switcher */}
+              <div className="flex items-center gap-1.5 p-1 bg-zinc-950/60 border border-zinc-800/80 rounded-2xl mb-5 relative z-10">
+                <button
+                  type="button"
+                  onClick={() => setPwaActiveTab("ios")}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl text-center transition-all ${
+                    pwaActiveTab === "ios"
+                      ? "bg-red-600 text-white font-black shadow-md shadow-red-950/20"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40"
+                  }`}
+                >
+                  <Smartphone className="h-4 w-4" />
+                  <span className="text-[10px] tracking-tight">{isAr ? "آيفون" : "iOS"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPwaActiveTab("android")}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl text-center transition-all ${
+                    pwaActiveTab === "android"
+                      ? "bg-red-600 text-white font-black shadow-md shadow-red-950/20"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40"
+                  }`}
+                >
+                  <Smartphone className="h-4 w-4" />
+                  <span className="text-[10px] tracking-tight">{isAr ? "أندرويد" : "Android"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPwaActiveTab("desktop")}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl text-center transition-all ${
+                    pwaActiveTab === "desktop"
+                      ? "bg-red-600 text-white font-black shadow-md shadow-red-950/20"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40"
+                  }`}
+                >
+                  <Monitor className="h-4 w-4" />
+                  <span className="text-[10px] tracking-tight">{isAr ? "كمبيوتر" : "PC / Mac"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPwaActiveTab("tv")}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl text-center transition-all ${
+                    pwaActiveTab === "tv"
+                      ? "bg-red-600 text-white font-black shadow-md shadow-red-950/20"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40"
+                  }`}
+                >
+                  <Tv className="h-4 w-4" />
+                  <span className="text-[10px] tracking-tight">{isAr ? "شاشة" : "TV"}</span>
+                </button>
+              </div>
+
               {/* Dynamic device-specific instructions tabs */}
               <div className="space-y-4">
                 <h4 className="text-xs font-black tracking-widest text-zinc-400 uppercase select-none">{t.pwaHowToTitle}</h4>
                 
-                <div className="space-y-3.5 max-h-[280px] overflow-y-auto pr-1">
+                <div className="space-y-3.5 pr-1">
                   {/* Apple / Safari */}
-                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
-                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
-                      <Smartphone className="h-4 w-4 text-sky-500" />
-                      <span>{t.pwaSafariInstructions}</span>
-                    </div>
-                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
-                      <li>{t.pwaSafariStep1}</li>
-                      <li>{t.pwaSafariStep2}</li>
-                      <li>{t.pwaSafariStep3}</li>
-                    </ol>
-                  </div>
+                  {pwaActiveTab === "ios" && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-zinc-950/50 border border-zinc-800/50 rounded-2xl transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                        <Smartphone className="h-4 w-4 text-sky-500" />
+                        <span>{t.pwaSafariInstructions}</span>
+                      </div>
+                      <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                        <li>{t.pwaSafariStep1}</li>
+                        <li>{t.pwaSafariStep2}</li>
+                        <li>{t.pwaSafariStep3}</li>
+                      </ol>
+
+                      {/* Apple .mobileconfig Profile Option */}
+                      <div className="mt-4 pt-3.5 border-t border-zinc-800/80">
+                        <span className="text-[10px] font-black text-amber-500 uppercase block mb-2">{t.pwaIosProfileLabel}</span>
+                        <a
+                          href="/api/pwa/ios-config"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-4 rounded-xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 text-xs focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-98"
+                        >
+                          <Download className="h-4 w-4" />
+                          <span>{t.pwaIosProfileBtn}</span>
+                        </a>
+                      </div>
+                    </motion.div>
+                  )}
 
                   {/* Android / Chrome */}
-                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
-                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
-                      <Smartphone className="h-4 w-4 text-emerald-500" />
-                      <span>{t.pwaAndroidInstructions}</span>
-                    </div>
-                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
-                      <li>{t.pwaAndroidStep1}</li>
-                      <li>{t.pwaAndroidStep2}</li>
-                    </ol>
-                  </div>
+                  {pwaActiveTab === "android" && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-zinc-950/50 border border-zinc-800/50 rounded-2xl transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                        <Smartphone className="h-4 w-4 text-emerald-500" />
+                        <span>{t.pwaAndroidInstructions}</span>
+                      </div>
+                      <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                        <li>{t.pwaAndroidStep1}</li>
+                        <li>{t.pwaAndroidStep2}</li>
+                      </ol>
+                    </motion.div>
+                  )}
 
                   {/* Computer (PC/Mac) */}
-                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
-                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
-                      <Monitor className="h-4 w-4 text-purple-500" />
-                      <span>{t.pwaDesktopInstructions}</span>
-                    </div>
-                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
-                      <li>{t.pwaDesktopStep1}</li>
-                      <li>{t.pwaDesktopStep2}</li>
-                    </ol>
-                  </div>
+                  {pwaActiveTab === "desktop" && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-zinc-950/50 border border-zinc-800/50 rounded-2xl transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                        <Monitor className="h-4 w-4 text-purple-500" />
+                        <span>{t.pwaDesktopInstructions}</span>
+                      </div>
+                      <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                        <li>{t.pwaDesktopStep1}</li>
+                        <li>{t.pwaDesktopStep2}</li>
+                      </ol>
+                    </motion.div>
+                  )}
 
                   {/* Android TV / Smart TV */}
-                  <div className="p-4 bg-zinc-950/50 border border-zinc-800/50 hover:border-zinc-800 rounded-2xl transition-colors">
-                    <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
-                      <Tv className="h-4 w-4 text-red-500" />
-                      <span>{t.pwaTvInstructions}</span>
-                    </div>
-                    <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
-                      <li>{t.pwaTvStep1}</li>
-                      <li>{t.pwaTvStep2}</li>
-                    </ol>
-                  </div>
+                  {pwaActiveTab === "tv" && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-zinc-950/50 border border-zinc-800/50 rounded-2xl transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5 text-zinc-200 font-bold text-xs mb-3">
+                        <Tv className="h-4 w-4 text-red-500" />
+                        <span>{t.pwaTvInstructions}</span>
+                      </div>
+                      <ol className="list-decimal list-inside space-y-2 text-xs text-zinc-400">
+                        <li>{t.pwaTvStep1}</li>
+                        <li>{t.pwaTvStep2}</li>
+                      </ol>
+                    </motion.div>
+                  )}
                 </div>
               </div>
 
@@ -3434,6 +3576,88 @@ export default function App() {
               >
                 {t.close}
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* PWA Opening / Installation Redirect One-Time Prompt */}
+      <AnimatePresence>
+        {showPwaRedirectPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl text-center overflow-hidden text-zinc-100"
+            >
+              {/* Premium Background Ambient Red Spot */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-600/15 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Pulsing play-circle / logo icon */}
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center shadow-lg shadow-red-950/40 relative mb-4">
+                <div className="absolute inset-0 rounded-2xl bg-red-500/20 animate-ping" />
+                <img 
+                  src="/logo.png" 
+                  alt="Libyflix" 
+                  className="w-11 h-11 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      const fallback = document.createElement('span');
+                      fallback.className = 'text-white font-black text-2xl';
+                      fallback.innerText = '▶';
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Smart attempt status feedback */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-950/80 border border-zinc-800/80 rounded-full text-[10px] font-bold text-red-500 mb-4 animate-pulse uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                <span>{isAr ? "فشل فتح التطبيق المستقل" : "App standalone check complete"}</span>
+              </div>
+
+              <h3 className="text-lg font-black tracking-tight mb-2.5">{t.pwaRedirectTitle}</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed mb-6 px-2">
+                {t.pwaRedirectDesc}
+              </p>
+
+              <div className="space-y-2.5">
+                {/* Install App Option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPwaRedirectPrompt(false);
+                    sessionStorage.setItem("libyflix_pwa_prompt_shown", "true");
+                    setShowPWAModal(true);
+                  }}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 px-4 rounded-xl shadow-lg shadow-red-950/20 transition-all flex items-center justify-center gap-2 text-xs focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>{t.pwaRedirectInstall}</span>
+                </button>
+
+                {/* Continue in Browser Option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPwaRedirectPrompt(false);
+                    sessionStorage.setItem("libyflix_pwa_prompt_shown", "true");
+                  }}
+                  className="w-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-zinc-300 hover:text-white font-black py-3 px-4 rounded-xl transition-all text-xs focus:outline-none cursor-pointer"
+                >
+                  {t.pwaRedirectContinue}
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
