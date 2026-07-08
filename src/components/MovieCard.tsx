@@ -30,6 +30,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick, isFavor
   // Fallback poster if posterUrl is null or fails
   const posterSrc = movie.posterUrl || "https://i.top4top.io/p_3839qx2t30.png";
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -43,7 +50,9 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, language, onClick, isFavor
       whileTap={{ scale: 0.98 }}
       id={`series-card-${movie.id}`}
       onClick={onClick}
-      className="group relative cursor-pointer overflow-hidden rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-md transition-colors duration-300 hover:border-red-500/40 hover:shadow-[0_20px_35px_-15px_rgba(239,68,68,0.3)] flex flex-col h-full"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className="group relative cursor-pointer overflow-hidden rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-md transition-all duration-300 hover:border-red-500/40 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-500/80 focus:scale-[1.03] hover:shadow-[0_20px_35px_-15px_rgba(239,68,68,0.3)] flex flex-col h-full"
     >
       {/* Poster image container */}
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950">
