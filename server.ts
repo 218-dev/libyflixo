@@ -310,63 +310,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/live/categories", async (req, res) => {
-    try {
-      const response = await axios.get("https://admin.golive-pro.online/api/public/categories", {
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "User-Agent": "Dart/3.10 (dart:io)"
-        },
-        timeout: 15000
-      });
-      res.json(response.data);
-    } catch (error: any) {
-      console.error("Live categories proxy error:", error.message);
-      res.status(500).json({ error: "Failed to fetch live categories", details: error.message });
-    }
-  });
-
-  app.get("/api/live/channels", async (req, res) => {
-    const { categoryId } = req.query;
-    if (!categoryId) {
-      return res.status(400).json({ error: "Missing categoryId" });
-    }
-    try {
-      const response = await axios.get(`https://admin.golive-pro.online/api/public/channels?categoryId=${categoryId}`, {
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "User-Agent": "Dart/3.10 (dart:io)"
-        },
-        timeout: 15000
-      });
-      res.json(response.data);
-    } catch (error: any) {
-      console.error("Live channels proxy error:", error.message);
-      res.status(500).json({ error: "Failed to fetch live channels", details: error.message });
-    }
-  });
-
-  app.get("/api/stream/status", async (req, res) => {
-    const { url } = req.query;
-    if (!url || typeof url !== 'string') {
-      return res.status(400).json({ error: "Missing or invalid URL" });
-    }
-    try {
-      // Use HEAD request to check if stream is reachable
-      const response = await axios.head(url, {
-        timeout: 5000,
-        headers: { "User-Agent": "Dart/3.10 (dart:io)" }
-      });
-      res.json({ status: response.status >= 200 && response.status < 400 });
-    } catch (error) {
-      res.json({ status: false });
-    }
-  });
-
   app.get("/api/license/activate", async (req, res) => {
-
     try {
       const { code, user_id, device_id, key } = req.query;
       const response = await axios.get("https://abdo218.alwaysdata.net/license.php", {
@@ -410,7 +354,7 @@ async function startServer() {
           const fileBuffer = fs.readFileSync(distLogoPath);
           iconBase64 = fileBuffer.toString("base64");
         } else {
-          const iconUrl = "https://img.icons8.com/flat-round/192/play--v1.png";
+          const iconUrl = "https://libyflix.abdo.com.ly/logo.png";
           const iconResponse = await axios.get(iconUrl, { responseType: "arraybuffer", timeout: 5000 });
           iconBase64 = Buffer.from(iconResponse.data, "binary").toString("base64");
         }
