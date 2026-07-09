@@ -9,7 +9,6 @@ import {
 import { Movie, Language } from "./types";
 import MovieCard from "./components/MovieCard";
 import ImageWithFallback from "./components/ImageWithFallback";
-import LiveTvScreen from "./components/LiveTvScreen";
 
 // Bilingual translations for static UI elements
 const translations = {
@@ -787,7 +786,7 @@ export default function App() {
     }
   };
   const [activeCategory, setActiveCategory] = useState("most-viewed");
-  const [contentType, setContentType] = useState<"movie" | "series" | "livetv">("series");
+  const [contentType, setContentType] = useState<"movie" | "series">("series");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -1761,7 +1760,6 @@ export default function App() {
     setSearchQuery(""); // Clear search to prevent conflict
     setPage(1);
     setSort("newest");
-    if (contentType === 'livetv') setContentType('movie'); // Switch out of livetv
   };
 
   return (
@@ -2183,38 +2181,6 @@ export default function App() {
                     {isAr ? "مسلسلات" : "Series"}
                   </span>
                 </label>
-
-                {/* Live TV Checkbox */}
-                <label className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-300 cursor-pointer select-none group ${
-                  contentType === "livetv"
-                    ? "bg-red-950/25 border-red-500/40 text-white shadow-md shadow-red-950/20"
-                    : "bg-zinc-950/20 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:border-zinc-800"
-                }`}>
-                  <input
-                    type="checkbox"
-                    id="checkbox-livetv"
-                    checked={contentType === "livetv"}
-                    onChange={() => {
-                      if (contentType !== "livetv") {
-                        setContentType("livetv");
-                      }
-                    }}
-                    className="sr-only"
-                  />
-                  <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border transition-all duration-300 ${
-                    contentType === "livetv"
-                      ? "bg-red-600 border-red-500 text-white"
-                      : "bg-zinc-900 border-zinc-800 text-transparent group-hover:border-zinc-700"
-                  }`}>
-                    <svg className="w-2 h-2 stroke-[4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <span className="text-xs font-bold tracking-tight flex items-center gap-1">
-                    <Tv className="h-3.5 w-3.5 text-red-500" />
-                    <span>{isAr ? "قنوات بث" : "Live TV"}</span>
-                  </span>
-                </label>
               </div>
             </div>
 
@@ -2298,56 +2264,54 @@ export default function App() {
       </header>
 
       {/* Sticky Scrollable Categories Bar */}
-      {contentType !== 'livetv' && (
-        <div className="sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 px-4 py-3 shadow-xl">
-          <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
-            {/* Universal Favorites Pill */}
+      <div className="sticky top-0 z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 px-4 py-3 shadow-xl">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+          {/* Universal Favorites Pill */}
+          <button
+            onClick={() => selectCategory("favorites")}
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+              activeCategory === "favorites" && !searchQuery
+                ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
+            }`}
+          >
+            <Heart className={`h-3.5 w-3.5 ${activeCategory === "favorites" ? "fill-current animate-pulse text-white" : "text-red-500"}`} />
+            <span>{isAr ? "المفضلة" : "Favorites"}</span>
+          </button>
+
+          {currentServer !== "server2" && STATIC_CATEGORIES.map((cat) => (
             <button
-              onClick={() => selectCategory("favorites")}
+              key={cat.id}
+              onClick={() => selectCategory(cat.id)}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                activeCategory === "favorites" && !searchQuery
+                activeCategory === cat.id && !searchQuery
                   ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
                   : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
               }`}
             >
-              <Heart className={`h-3.5 w-3.5 ${activeCategory === "favorites" ? "fill-current animate-pulse text-white" : "text-red-500"}`} />
-              <span>{isAr ? "المفضلة" : "Favorites"}</span>
+              <span>{isAr ? cat.nameAr : cat.nameEn}</span>
             </button>
+          ))}
 
-            {currentServer !== "server2" && STATIC_CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => selectCategory(cat.id)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                  activeCategory === cat.id && !searchQuery
-                    ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                    : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
-                }`}
-              >
-                <span>{isAr ? cat.nameAr : cat.nameEn}</span>
-              </button>
-            ))}
-
-            {(currentServer === "server2" ? dynamicCategories : (currentServer === "server1" ? dynamicCategories : dynamicCategories.slice(0, 3))).map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => selectCategory(cat.id)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                  activeCategory === cat.id && !searchQuery
-                    ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
-                    : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
-                }`}
-              >
-                {(cat as any).icon && <span className="text-sm">{(cat as any).icon}</span>}
-                <span>{isAr ? cat.nameAr : cat.nameEn}</span>
-              </button>
-            ))}
-          </div>
+          {(currentServer === "server2" ? dynamicCategories : (currentServer === "server1" ? dynamicCategories : dynamicCategories.slice(0, 3))).map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => selectCategory(cat.id)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                activeCategory === cat.id && !searchQuery
+                  ? "bg-red-600 text-white shadow-lg shadow-red-900/40 ring-1 ring-red-500"
+                  : "bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 hover:text-white focus:text-white focus:bg-zinc-800"
+              }`}
+            >
+              {(cat as any).icon && <span className="text-sm">{(cat as any).icon}</span>}
+              <span>{isAr ? cat.nameAr : cat.nameEn}</span>
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Featured Movies Slider (Only shown when not searching and on home category) */}
-      {contentType !== 'livetv' && !loading && !error && (activeCategory === "most-viewed" || activeCategory === "all-movies" || activeCategory === "all-series") && !searchQuery && filteredFeaturedMovies.length > 0 && (
+      {!loading && !error && (activeCategory === "most-viewed" || activeCategory === "all-movies" || activeCategory === "all-series") && !searchQuery && filteredFeaturedMovies.length > 0 && (
         <section className="relative w-full h-[400px] sm:h-[480px] md:h-[550px] bg-black overflow-hidden border-b border-zinc-900">
           <AnimatePresence mode="wait">
             {filteredFeaturedMovies.map((movie, idx) => {
@@ -2441,7 +2405,7 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 flex-grow w-full flex flex-col gap-8">
         
         {/* Continue Watching Section */}
-        {contentType !== 'livetv' && continueWatching.length > 0 && !searchQuery && (
+        {continueWatching.length > 0 && !searchQuery && (
           <section className="flex flex-col gap-4 bg-zinc-950/25 border border-zinc-900 rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -2512,7 +2476,7 @@ export default function App() {
         )}
 
         {/* Server 1 Genre Selection Bar */}
-        {contentType !== 'livetv' && currentServer === "server1" && SERVER1_GENRES[activeCategory] && (
+        {currentServer === "server1" && SERVER1_GENRES[activeCategory] && (
           <section className="flex flex-col gap-2 bg-zinc-950/20 border border-zinc-900 rounded-2xl p-4">
             <h4 className="text-xs font-semibold text-zinc-500 flex items-center gap-2 uppercase tracking-wider select-none">
               <span>🎭</span>
@@ -2555,28 +2519,27 @@ export default function App() {
         )}
 
         {/* Section Heading */}
-        {contentType !== 'livetv' && (
-          <div className="flex flex-col gap-4 border-b border-zinc-900 pb-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  {searchQuery 
-                    ? `${t.showingResults}: "${searchQuery}"`
-                    : activeCategory === "favorites"
-                      ? (isAr ? "المفضلة" : "Favorites")
-                      : (isAr 
-                          ? (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameAr 
-                          : (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameEn)}
-                </h2>
-                <p className="text-[11px] text-zinc-500 mt-1 font-medium">
-                  {isAr 
-                    ? `${movies.length} ${contentType === 'movie' ? 'فيلم متاح حالياً' : 'مسلسل متاح حالياً'}`
-                    : `${movies.length} ${contentType === 'movie' ? 'movies' : 'series'} available currently`}
-                </p>
-              </div>
+        <div className="flex flex-col gap-4 border-b border-zinc-900 pb-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                {searchQuery 
+                  ? `${t.showingResults}: "${searchQuery}"`
+                  : activeCategory === "favorites"
+                    ? (isAr ? "المفضلة" : "Favorites")
+                    : (isAr 
+                        ? (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameAr 
+                        : (currentServer === "server2" ? dynamicCategories : [...STATIC_CATEGORIES, ...dynamicCategories]).find(c => c.id === activeCategory)?.nameEn)}
+              </h2>
+              <p className="text-[11px] text-zinc-500 mt-1 font-medium">
+                {isAr 
+                  ? `${movies.length} ${contentType === 'movie' ? 'فيلم متاح حالياً' : 'مسلسل متاح حالياً'}`
+                  : `${movies.length} ${contentType === 'movie' ? 'movies' : 'series'} available currently`}
+              </p>
             </div>
           </div>
-        )}
+
+        </div>
 
         {/* Loading Overlay */}
         {loading ? (
@@ -2728,12 +2691,6 @@ export default function App() {
           </AnimatePresence>
         )}
       </main>
-      
-      {contentType === "livetv" && (
-        <div className="py-8">
-           <LiveTvScreen isAr={isAr} />
-        </div>
-      )}
 
       {/* Footer Branding Area */}
       <footer className="mt-auto border-t border-zinc-900 bg-zinc-950 py-12 px-4 md:px-8">
@@ -2813,12 +2770,8 @@ export default function App() {
                   </div>
                   <div className="h-8 w-px bg-zinc-800" />
                   <div className="flex flex-col items-start">
-                    <button
-                      onClick={() => setContentType("livetv")}
-                      className="bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl transition-all"
-                    >
-                      {isAr ? "قنوات بث" : "Live TV"}
-                    </button>
+                    <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">{t.remainingDays}</span>
+                    <span className="text-sm font-black text-red-500">{licenseInfo.remainingDays} {t.days}</span>
                   </div>
                 </div>
               )}
